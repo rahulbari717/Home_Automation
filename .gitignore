@@ -53,3 +53,25 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# ---------------------------------
+# IDE & Tool Specifics (Added)
+# ---------------------------------
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# STM32CubeIDE / Eclipse Workspace Metadata
+.metadata/
+
+# STM32CubeIDE Project Artifacts
+*/Debug/
+*/Release/
+*.elf
+*.bin
+*.map
+*.launch
+.settings/
+*.ioc.bak
+.mxproject
