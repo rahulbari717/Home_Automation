@@ -1,0 +1,2 @@
+source /home/lenovo/Documents/Home_Automation/firmware/esp32-common-components/esp_rtos/001_task/build/bootloader/gdbinit/symbols
+source /home/lenovo/Documents/Home_Automation/firmware/esp32-common-components/esp_rtos/001_task/build/bootloader/gdbinit/connect

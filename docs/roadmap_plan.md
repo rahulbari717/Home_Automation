@@ -192,3 +192,45 @@ Data Path Test: Sensor (ESP32-S2) -> CAN -> STM32 -> SPI -> Pico -> OLED.
 Safety Test: Disconnect CAN wire -> ESP32-S2 should turn off all relays (Watchdog).
 
 Full System: Trigger Face Detect -> Unlock Relay + Log to MQTT.
+
+---
+
+## 📊 Priority 
+
+🎯 Recommended Development Sequence
+
+### Sprint 1 (Weeks 1-2): HIGH PRIORITY
+
+STM32 GPIO + Clock + SysTick
+UART driver + loopback test
+Basic LED/Buzzer control
+
+### Sprint 2 (Weeks 3-4): HIGH PRIORITY
+
+I2C + SPI drivers
+CAN driver + packet protocol
+Communication loopback tests
+
+### Sprint 3 (Weeks 5-6): MEDIUM PRIORITY
+
+ADC/PWM/DAC drivers
+ESP32 GPIO/Memory components
+Platform agnostic sensor drivers
+
+### Sprint 4 (Weeks 7-8): MEDIUM PRIORITY
+
+ESP32 UART/I2C/SPI components
+OLED/LCD/TFT display drivers
+Watchdog implementation
+
+### Sprint 5 (Weeks 9-10): LOW PRIORITY
+
+RTOS wrapper integration
+WiFi + MQTT + BLE modules
+ESP32-CAM setup
+
+### Sprint 6 (Weeks 11-12): LOW PRIORITY
+
+Vision processing integration
+Full system integration tests
+Documentation & release

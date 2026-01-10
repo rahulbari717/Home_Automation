@@ -1,0 +1,2 @@
+source /home/lenovo/Documents/Home_Automation/firmware/esp32-common-components/esp_rtos/003_mutex/build/gdbinit/symbols
+source /home/lenovo/Documents/Home_Automation/firmware/esp32-common-components/esp_rtos/003_mutex/build/gdbinit/connect
