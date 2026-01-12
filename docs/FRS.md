@@ -35,7 +35,7 @@ The Citadel is a **distributed embedded control system** for:
 **User Story:** *"As a homeowner, I want the system to unlock my door automatically when it recognizes my face, so I don't need to carry keys."*
 
 **Acceptance Criteria:**
-1. System shall recognize registered faces with ≥95% accuracy in daylight
+<!-- 1. System shall recognize registered faces with ≥95% accuracy in daylight
 2. Face recognition shall complete within 2 seconds
 3. System shall store up to 20 face embeddings locally
 4. Unknown faces shall trigger a photo capture and mobile alert
@@ -45,7 +45,11 @@ The Citadel is a **distributed embedded control system** for:
 - TC-SEC-001-01: Verify door unlocks for registered user using pin on keypad and 16*2 LCD display, oled status of door open or closed. 
 - TC-SEC-001-02: Verify door unlocks for registered user
 - TC-SEC-001-03: Verify door remains locked for unknown person
-- TC-SEC-001-04: Verify alert sent when unknown person detected, buzzer on.
+- TC-SEC-001-04: Verify alert sent when unknown person detected, buzzer on. -->
+
+1) create code for keypad LCD stm32, with led and buzzer combination for pin (password code)
+https://github.com/rahulbari717/User_management_system
+
 
 ---
 

@@ -234,3 +234,180 @@ ESP32-CAM setup
 Vision processing integration
 Full system integration tests
 Documentation & release
+
+## pins
+
+Perfect. Below is **ONE combined wiring diagram in text form**, with **only pins**, all modules together.
+Assuming again: **STM32F446RE**, **ESP32-CAM (AI-Thinker)**, **ESP32-S2 Mini**, **SSD1306 OLED**, **16×2 LCD (4-bit)**, **4×4 Keypad**.
+
+No extra explanation. Just connections.
+
+---
+
+# 🔗 COMBINED PIN CONNECTION DIAGRAM
+
+---
+
+## 1️⃣ STM32 ↔ ESP32-CAM (UART)
+
+### STM32F446RE
+
+* PA9  → USART1_TX
+* PA10 → USART1_RX
+* GND  → GND
+
+### ESP32-CAM
+
+* GPIO3 (U0R) ← RX
+* GPIO1 (U0T) → TX
+* GND → GND
+
+---
+
+## 2️⃣ STM32 ↔ ESP32-S2 Mini (CAN via Transceiver)
+
+### STM32F446RE (BxCAN)
+
+* PB9 → CAN_TX
+* PB8 → CAN_RX
+* GND → GND
+
+### CAN Transceiver (SN65HVD230 / MCP2551)
+
+* TXD ← STM32 CAN_TX
+* RXD → STM32 CAN_RX
+* CANH ↔ CANH
+* CANL ↔ CANL
+
+### ESP32-S2 Mini (TWAI)
+
+* GPIO5 → TWAI_TX
+* GPIO6 → TWAI_RX
+* GND → GND
+
+---
+
+## 3️⃣ STM32 ↔ ESP32-CAM (SPI)
+
+### STM32F446RE (SPI1)
+
+* PA5 → SCK
+* PA6 → MISO
+* PA7 → MOSI
+* PA4 → CS
+* GND → GND
+
+### ESP32-CAM
+
+* GPIO14 → SCK
+* GPIO12 → MISO
+* GPIO13 → MOSI
+* GPIO15 → CS
+* GND → GND
+
+---
+
+## 4️⃣ STM32 ↔ OLED Display (I²C – SSD1306)
+
+### STM32F446RE
+
+* PB8 → I2C1_SCL
+* PB9 → I2C1_SDA
+* 3.3V → VCC
+* GND → GND
+
+### OLED
+
+* SCL
+* SDA
+* VCC
+* GND
+
+---
+
+## 5️⃣ STM32 ↔ LCD 16×2 (4-bit mode, no I²C)
+
+### STM32F446RE
+
+* PA0 → RS
+* PA1 → EN
+* PA2 → D4
+* PA3 → D5
+* PA4 → D6
+* PA5 → D7
+* GND → RW
+* 5V  → VCC
+* GND → GND
+
+### LCD
+
+* RS
+* EN
+* D4–D7
+* RW
+* VCC
+* GND
+
+---
+
+## 6️⃣ STM32 ↔ 4×4 Keypad
+
+### STM32F446RE
+
+* PC0 → Row1
+* PC1 → Row2
+* PC2 → Row3
+* PC3 → Row4
+* PC4 → Col1
+* PC5 → Col2
+* PC6 → Col3
+* PC7 → Col4
+
+### Keypad
+
+* R1–R4
+* C1–C4
+
+---
+
+## 🔋 POWER (IMPORTANT)
+
+* ESP32-CAM → **External 5V**
+* STM32, ESP32-S2 → 3.3V
+* **All GNDs COMMON**
+
+---
+
+
+# flow of code for stm32 
+
+The Core Concept
+The device acts as the central brain for a house. It has two distinct personalities:
+
+The Gatekeeper (Security Mode): It is defensive. The system is locked, the screen is off (to save power), and it waits for an authorized user.
+
+The Commander (Control Mode): Once unlocked, it becomes a dashboard. You can navigate menus to turn lights/fans on or off (simulated by LEDs) and check status.
+
+Input: 4x4 Keypad (Used for PIN entry AND Menu Navigation).
+
+Display: 16x2 LCD (Shows "Locked", "Enter PIN", "Living Room", "Light: ON").
+
+Security Feedback: Red LED (Locked/Error), Green LED (Unlocked/Success), Buzzer (Alarm/Clicks).
+
+Device Simulation: Use 2 extra LEDs to represent:
+
+LED 3: Living Room Light.
+
+LED 4: Garage Door / Kitchen Fan.
+1) create code for keypad LCD stm32, with led and buzzer combination for pin (password code)
+https://github.com/rahulbari717/User_management_system
+
+
+
+2) oled display with rtc date and time 
+
+3) then i2c, spi, can code 
+
+4) then focus on esp32 idf codes.
+
+5) 
