@@ -10,6 +10,8 @@
 #include "config.h"                    // ← MUST INCLUDE
 #include "lcd.h"                       // For LCD_DelayMs
 
+extern void delay_ms(uint32_t ms);
+
 void LED_Init(void)
 {
     GPIO_Handle_t led;
@@ -53,14 +55,20 @@ void LED_RedOff(void)
     GPIO_WriteToOutputPin(LED_PORT, LED_RED_PIN, GPIO_PIN_RESET);
 }
 
-// void LED_Flash(uint8_t pin, uint8_t count, uint16_t duration_ms)
-// {
-//     for(uint8_t i = 0; i < count; i++) {
-//         GPIO_WriteToOutputPin(LED_PORT, pin, GPIO_PIN_SET);
-//         LCD_DelayMs(duration_ms);
-//         GPIO_WriteToOutputPin(LED_PORT, pin, GPIO_PIN_RESET);
-//         if(i < count - 1) {
-//             LCD_DelayMs(duration_ms);
-//         }
-//     }
-// }
+void LED_Flash(GPIO_RegDef_t *pGPIOx, uint8_t pin, uint8_t count, uint16_t duration_ms)
+{
+    for(uint8_t i = 0; i < count; i++)
+    {
+        // Turn ON using the passed Port pointer
+        GPIO_WriteToOutputPin(pGPIOx, pin, GPIO_PIN_SET);
+        delay_ms(duration_ms);
+
+        // Turn OFF
+        GPIO_WriteToOutputPin(pGPIOx, pin, GPIO_PIN_RESET);
+
+        // Delay between flashes (only if there is another flash coming)
+        if(i < count - 1) {
+            delay_ms(duration_ms);
+        }
+    }
+}

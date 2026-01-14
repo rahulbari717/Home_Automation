@@ -1,9 +1,9 @@
 /*
- * 002_ledButton.c
+ * 003_buttonInterrupt.c
  *
  *  Created on: Nov 25, 2025
- 	Author: Rahul B.
- *  when button pressed led ON otherwise stop.
+ *  Author: Rahul B.
+ *  Description : when button pressed led on another time press led off
  *
  */
 
@@ -15,6 +15,8 @@ void delay(void){
 
 void init(void){
 	GPIO_Handle_t GpioLed, GpioButton;
+	memset(&GpioButton, 0, sizeof(GpioButton));
+	memset(&GpioLed, 0, sizeof(GpioLed));
 
 	GpioLed.pGPIOx = GPIOA;
 	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_5;
@@ -25,7 +27,7 @@ void init(void){
 
 	GpioButton.pGPIOx = GPIOC;
 	GpioButton.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_13;
-	GpioButton.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_IN;
+	GpioButton.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_IT_FT;
 	GpioButton.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 	GpioButton.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
 
@@ -35,22 +37,20 @@ void init(void){
 	GPIO_Init(&GpioLed);
 	GPIO_Init(&GpioButton);
 
+	// Configure IRQ priority and enable interrupt
+	GPIO_IRQPriorityConfig(EXTI15_10_IRQn, NVIC_IRQ_PRI15);
+	GPIO_IRQInterruptConfig(EXTI15_10_IRQn, ENABLE);
 }
 
 int main(){
-
 	init();
 
-	while(1){
-		if(GPIO_ReadFromInputPin(GPIOC, GPIO_PIN_NO_13) == BTN_PRESSED){
-		    // Button is pressed: Turn LED ON
-		    GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_5, GPIO_PIN_SET);
-		    delay();
-		}else{
-			// Button is NOT pressed: Turn LED OFF
-		    GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_5, GPIO_PIN_RESET);
-		}
-	}
-
 	return 0;
+}
+
+// IRQ Handler for EXTI15_10 (handles PC13)
+void EXTI15_10_IRQHandler(void){
+	delay(); // Simple debounce
+	GPIO_IRQHandling(GPIO_PIN_NO_13); // Clear the pending bit
+	GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_NO_5); // Toggle LED
 }

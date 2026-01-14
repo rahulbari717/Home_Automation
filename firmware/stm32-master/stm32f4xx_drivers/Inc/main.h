@@ -19,6 +19,9 @@ void LED_Init(void);
 void Buzzer_Init(void);
 void WakeupButton_Init(void);
 void Buzzer_Beep(uint8_t count, uint16_t duration_ms);
-void LED_Flash(GPIO_RegDef_t *port, uint8_t pin, uint8_t count, uint16_t duration_ms);
+
+// --- Function Prototypes (Tells compiler these exist) ---
+void USART2_GPIOInit(void);
+void USART2_Init(void);
 
 #endif /* MAIN_H_ */

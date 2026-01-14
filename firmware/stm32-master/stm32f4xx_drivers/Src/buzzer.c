@@ -12,10 +12,6 @@
 #include "buzzer.h"
 #include "lcd.h"                       
 
-void delay(void){
-	for(int i=0; i<500000; i++);
-}
-
 void Buzzer_Init(void)
 {
     GPIO_Handle_t buzzer;

@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #define __weak __attribute__((weak))
 
@@ -267,7 +268,9 @@
 #define I2C2                    	((I2C_RegDef_t*)I2C2_BASEADDR)
 #define I2C3                    	((I2C_RegDef_t*)I2C3_BASEADDR)
 
+#define PWR                     ((PWR_RegDef_t*)PWR_BASEADDR)       /* PWR peripheral definition */
 #define RCC                     	((RCC_RegDef_t*)RCC_BASEADDR)       /* RCC peripheral definition */
+#define RTC                     ((RTC_RegDef_t*)RTC_BASEADDR)       /* RTC peripheral definition */
 
 #define SPI1                    	((SPI_RegDef_t*)SPI1_BASEADDR)
 #define SPI2                    	((SPI_RegDef_t*)SPI2_BASEADDR)
@@ -546,6 +549,44 @@ typedef struct
 } I2C_RegDef_t;
 
 /*
+ * Peripheral register definition structure for RTC
+ */
+typedef struct
+{
+    volatile uint32_t TR;       /* RTC time register,                Address offset: 0x00 */
+    volatile uint32_t DR;       /* RTC date register,                Address offset: 0x04 */
+    volatile uint32_t CR;       /* RTC control register,             Address offset: 0x08 */
+    volatile uint32_t ISR;      /* RTC initialization and status,    Address offset: 0x0C */
+    volatile uint32_t PRER;     /* RTC prescaler register,           Address offset: 0x10 */
+    volatile uint32_t WUTR;     /* RTC wakeup timer register,        Address offset: 0x14 */
+         uint32_t RESERVED0;    /* Reserved,                         Address offset: 0x18 */
+    volatile uint32_t ALRMAR;   /* RTC alarm A register,             Address offset: 0x1C */
+    volatile uint32_t ALRMBR;   /* RTC alarm B register,             Address offset: 0x20 */
+    volatile uint32_t WPR;      /* RTC write protection register,    Address offset: 0x24 */
+    volatile uint32_t SSR;      /* RTC sub second register,          Address offset: 0x28 */
+    volatile uint32_t SHIFTR;   /* RTC shift control register,       Address offset: 0x2C */
+    volatile uint32_t TSTR;     /* RTC time stamp time register,     Address offset: 0x30 */
+    volatile uint32_t TSDR;     /* RTC time stamp date register,     Address offset: 0x34 */
+    volatile uint32_t TSSSR;    /* RTC time-stamp sub second,        Address offset: 0x38 */
+    volatile uint32_t CALR;     /* RTC calibration register,         Address offset: 0x3C */
+    volatile uint32_t TAFCR;    /* RTC tamper and AF config,         Address offset: 0x40 */
+    volatile uint32_t ALRMASSR; /* RTC alarm A sub second,           Address offset: 0x44 */
+    volatile uint32_t ALRMBSSR; /* RTC alarm B sub second,           Address offset: 0x48 */
+         uint32_t RESERVED1;    /* Reserved,                         Address offset: 0x4C */
+    volatile uint32_t BKP0R;    /* RTC backup register 0,            Address offset: 0x50 */
+} RTC_RegDef_t;
+
+/*
+ * Peripheral register definition structure for PWR
+ */
+typedef struct
+{
+    volatile uint32_t CR;       /* PWR power control register,       Address offset: 0x00 */
+    volatile uint32_t CSR;      /* PWR power control/status,         Address offset: 0x04 */
+} PWR_RegDef_t;
+
+
+/*
  * Peripheral register definition structure for USART/UART
  */
 typedef struct
@@ -558,6 +599,9 @@ typedef struct
     volatile uint32_t CR3;          /* USART Control register 3,                   Address offset: 0x14 */
     volatile uint32_t GTPR;         /* USART Guard time and prescaler register,    Address offset: 0x18 */
 } USART_RegDef_t;
+
+
+
 
 /*
  * Peripheral register definition structure for EXTI
@@ -591,5 +635,6 @@ typedef struct
 #include "stm32f446xx_i2c_driver.h"
 #include "stm32f446xx_usart_driver.h"
 #include "stm32f446xx_rcc_driver.h"
+#include "stm32f446xx_rtc_driver.h"
 
 #endif /* INC_STM32F446XX_H_ */
