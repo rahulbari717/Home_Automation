@@ -333,7 +333,6 @@ uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32
 
 }
 
-
 /*********************************************************************
  * @fn      		  - USART_ReceiveDataIT
  *
