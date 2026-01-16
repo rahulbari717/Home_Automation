@@ -74,11 +74,11 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.2129769693" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.1300047558" name="006_Keypad.c" rcbsApplicability="disable" resourcePath="Application/Src/006_Keypad.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.1985619523">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.1985619523" name="MCU/MPU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209"/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.113146384" name="008_Fault_test.c" rcbsApplicability="disable" resourcePath="Application/Src/008_Fault_test.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.230033020">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.230033020" name="MCU/MPU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209"/>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="Src/006_Keypad.c|Src/005_UART_TX.c|Src/004_buttonInterruptRFT.c|Src/003_buttonInterrupt.c|Src/002_ledButton.c|Src/001_LedToggle.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Application"/>
+						<entry excluding="Src/008_Fault_test.c|Src/007_rtc_uart.c|Src/006_Keypad.c|Src/005_UART_TX.c|Src/004_buttonInterruptRFT.c|Src/003_buttonInterrupt.c|Src/002_ledButton.c|Src/001_LedToggle.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Application"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="BSP"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>

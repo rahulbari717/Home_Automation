@@ -455,6 +455,39 @@
                                    (x == GPIOG)?6:\
                                    (x == GPIOH)?7:0)
 
+
+/************************* Processor Core Peripheral definition structure ***********/
+/*
+ * Processor Core Peripheral: SCB (System Control Block)
+ * Base Address: 0xE000ED00
+ */
+#define SCB_BASEADDR      0xE000ED00UL
+#define SCB               ((SCB_RegDef_t*)SCB_BASEADDR)
+
+typedef struct
+{
+    volatile uint32_t CPUID;        /* Offset: 0x00 CPUID Base Register */
+    volatile uint32_t ICSR;         /* Offset: 0x04 Interrupt Control and State Register */
+    volatile uint32_t VTOR;         /* Offset: 0x08 Vector Table Offset Register */
+    volatile uint32_t AIRCR;        /* Offset: 0x0C Application Interrupt and Reset Control Register */
+    volatile uint32_t SCR;          /* Offset: 0x10 System Control Register */
+    volatile uint32_t CCR;          /* Offset: 0x14 Configuration and Control Register */
+    volatile uint32_t SHPR1;        /* Offset: 0x18 System Handler Priority Register 1 */
+    volatile uint32_t SHPR2;        /* Offset: 0x1C System Handler Priority Register 2 */
+    volatile uint32_t SHPR3;        /* Offset: 0x20 System Handler Priority Register 3 */
+    volatile uint32_t SHCSR;        /* Offset: 0x24 System Handler Control and State Register */
+    volatile uint32_t CFSR;         /* Offset: 0x28 Configurable Fault Status Register */
+    volatile uint32_t HFSR;         /* Offset: 0x2C HardFault Status Register */
+    volatile uint32_t DFSR;         /* Offset: 0x30 Debug Fault Status Register */
+    volatile uint32_t MMFAR;        /* Offset: 0x34 MemManage Fault Address Register */
+    volatile uint32_t BFAR;         /* Offset: 0x38 BusFault Address Register */
+    volatile uint32_t AFSR;         /* Offset: 0x3C Auxiliary Fault Status Register */
+    volatile uint32_t PFR[2];       /* Offset: 0x40 Processor Feature Register */
+    volatile uint32_t DFR;          /* Offset: 0x48 Debug Feature Register */
+    volatile uint32_t ADR;          /* Offset: 0x4C Auxiliary Feature Register */
+    volatile uint32_t MMFR[4];      /* Offset: 0x50 Memory Model Feature Register */
+    volatile uint32_t ISAR[5];      /* Offset: 0x60 Instruction Set Attributes Register */
+} SCB_RegDef_t;
 /************************* peripheral register definition structure ***********/
 
 /*
@@ -636,5 +669,6 @@ typedef struct
 #include "stm32f446xx_usart_driver.h"
 #include "stm32f446xx_rcc_driver.h"
 #include "stm32f446xx_rtc_driver.h"
+#include "stm32f446xx_fault_handler.h"
 
 #endif /* INC_STM32F446XX_H_ */

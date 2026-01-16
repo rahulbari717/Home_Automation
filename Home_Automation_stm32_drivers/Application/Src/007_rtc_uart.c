@@ -103,6 +103,7 @@ int main(void)
     uint8_t year, month, date, weekday;
 
     const char *days[] = {"", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    Fault_Init();
 
     // Initialize UART
     USART2_GPIOInit();
