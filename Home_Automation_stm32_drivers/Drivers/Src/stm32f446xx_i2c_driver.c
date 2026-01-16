@@ -5,7 +5,8 @@
  *      Author: Rahul B.
  */
 
-#include "stm32f446xx.h" 
+
+#include "stm32f446xx_i2c_driver.h"
 
 /* ----------- STATIC HELPER FUNCTION PROTOTYPES ----------- */
 static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2Cx); 

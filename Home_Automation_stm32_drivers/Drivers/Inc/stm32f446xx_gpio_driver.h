@@ -2,7 +2,7 @@
  * stm32f446xx_gpio_driver.h
  *
  *  Created on: Nov 25, 2025
- *      Author: Rahul B.
+ * 	Author: Rahul B.
  */
 
 #ifndef INC_STM32F446XX_GPIO_DRIVER_H_

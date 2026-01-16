@@ -2,7 +2,7 @@
  * 008_fault_test.c
  *
  * Created on: Jan 16, 2026
- * Author: Rahul Bari
+ * Author: Rahul B.
  * Description: Interactive Fault Injection Tester for The Citadel
  *
  * Requirements:

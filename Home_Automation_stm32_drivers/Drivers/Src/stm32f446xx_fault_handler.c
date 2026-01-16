@@ -2,13 +2,13 @@
  * fault_handler.c
  *
  *  Created on: Jan 16, 2026
- *  Author: Rahul Bari.
+ *  Author: Rahul B.
  *  description : to test and debug
  *  Error handling
  *  System understanding
  */
 
-#include "stm32f446xx.h"
+#include "stm32f446xx_fault_handler.h"
 /* Provided by your UART driver */
 extern void UART_Printf(const char *format, ...);
 
