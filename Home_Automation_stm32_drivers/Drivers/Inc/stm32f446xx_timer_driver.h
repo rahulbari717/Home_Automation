@@ -135,6 +135,15 @@
 #define TIMER_DIER_CC4IE        (1 << 4)    /* Capture/Compare 4 interrupt enable */
 
 /*
+ * Events to report to the Application
+ */
+#define TIMER_EVENT_UPDATE  0
+#define TIMER_EVENT_CC1     1
+#define TIMER_EVENT_CC2     2
+#define TIMER_EVENT_CC3     3
+#define TIMER_EVENT_CC4     4
+
+/*
  * Configuration structure for Timer base
  */
 typedef struct
@@ -250,5 +259,5 @@ void TIMER_IRQHandling(TIMER_Handle_t *pTIMERHandle);
 void TIMER_DelayMs(TIM_RegDef_t *pTIMx, uint32_t DelayMs);
 void TIMER_DelayUs(TIM_RegDef_t *pTIMx, uint32_t DelayUs);
 void TIMER_Basic_DelayMs(TIM_RegDef_t *pTIMx, uint16_t DelayMs);
-
+void TIMER_Basic_DelayMs_IT(TIM_RegDef_t *pTIMx, uint16_t DelayMs);
 #endif /* INC_STM32F446XX_TIMER_DRIVER_H_ */

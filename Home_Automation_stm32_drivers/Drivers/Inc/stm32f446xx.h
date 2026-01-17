@@ -283,6 +283,7 @@
 #define I2C1                    	((I2C_RegDef_t*)I2C1_BASEADDR)
 #define I2C2                    	((I2C_RegDef_t*)I2C2_BASEADDR)
 #define I2C3                    	((I2C_RegDef_t*)I2C3_BASEADDR)
+#define IWDG                        ((IWDG_RegDef_t*)IWDG_BASEADDR)
 #define PWR                     	((PWR_RegDef_t*)PWR_BASEADDR)       /* PWR peripheral definition */
 #define RCC                     	((RCC_RegDef_t*)RCC_BASEADDR)       /* RCC peripheral definition */
 #define RTC                     	((RTC_RegDef_t*)RTC_BASEADDR)       /* RTC peripheral definition */
@@ -689,6 +690,18 @@ typedef struct
 } I2C_RegDef_t;
 
 /*
+ * IWDG Register Definitions
+ */
+typedef struct
+{
+    volatile uint32_t KR;       /* Key register,              Address offset: 0x00 */
+    volatile uint32_t PR;       /* Prescaler register,        Address offset: 0x04 */
+    volatile uint32_t RLR;      /* Reload register,           Address offset: 0x08 */
+    volatile uint32_t SR;       /* Status register,           Address offset: 0x0C */
+} IWDG_RegDef_t;
+
+
+/*
  * Peripheral register definition structure for PWR
  */
 typedef struct
@@ -845,5 +858,5 @@ typedef struct
 #include "stm32f446xx_rtc_driver.h"
 #include "stm32f446xx_fault_handler.h"
 #include "stm32f446xx_timer_driver.h"
-
+#include "stm32f446xx_iwdg_driver.h"
 #endif /* INC_STM32F446XX_H_ */

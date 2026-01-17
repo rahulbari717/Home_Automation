@@ -1,12 +1,14 @@
 /*
- * 014_basic_timer_100ms.c
+ * 015_basic_timer_100ms_IT.c
  *
- * Created on: Jan 17, 2026
- * Author: Rahul B.
- * Description : PA5 LED 100ms delay using Basic Timer 6
+ *  Created on: Jan 17, 2026
+ *      Author: Rahul B.
  */
 
 #include "stm32f446xx.h"
+
+TIMER_Handle_t htimer7; // Global handle
+volatile uint8_t g_TimerDelayComplete = 0;
 
 void gpio_init(){
     GPIO_Handle_t GpioLed;
@@ -22,14 +24,13 @@ void gpio_init(){
 
 int main(void)
 {
-    // 1. Initialize GPIO
     gpio_init();
 
-    while(1){
-		// Delay 100ms
-		// This calculates its own math based on current clock
-		TIMER_Basic_DelayMs(TIM6, 100);
+    // Set up the handle so the ISR can use it
+    htimer7.pTIMx = TIM7;
 
-		GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_NO_5);
-	}
+    while(1){
+        TIMER_Basic_DelayMs_IT(TIM7, 500);
+        GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_NO_5);
+    }
 }
