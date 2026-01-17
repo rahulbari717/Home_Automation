@@ -2,10 +2,79 @@
  * stm32f446xx_timer_driver.c
  *
  *  Created on: Jan 16, 2026
- *      Author: Your Name
+ *      Author: Rahul B.
  */
 
+/*
+ * stm32f446re timer info :
+ * 2 Advance timer ==> tim1 & tim8
+ * general purpose 32 bit ==>  tim2 & tim5
+ * general purpose 16 bit ==>  tim3 & tim4
+ * basic timer ==>  tim6 & tim7
+ * single channel ==> 10, 11, 13, 14
+ * Double channel ==> 9 ,12
+ *
+ * */
+
 #include "stm32f446xx_timer_driver.h"
+#include "stm32f446xx_rcc_driver.h"
+
+/*********************************************************************
+ * @fn              - TIMER_DelayInit
+ * @brief           - Smart Initialization of TIM2 for 1 microsecond ticks
+ *********************************************************************/
+void TIMER_DelayInit(void)
+{
+    TIMER_Handle_t TimDelay;
+    uint32_t timer_clock_freq = 0;
+
+    // ==========================================================
+    // STEP 1: ASK THE SYSTEM "HOW FAST AM I RUNNING?"
+    // ==========================================================
+
+    // 1. Get the APB1 Bus Clock (PCLK1) using your RCC Driver
+    uint32_t pclk1 = RCC_GetPCLK1Value();
+
+    // 2. Determine Timer Input Frequency (Hardware Rule)
+    // Rule: If APB1 Prescaler = 1, Timer Clock = PCLK1
+    //       If APB1 Prescaler > 1, Timer Clock = 2 * PCLK1
+
+    // Read APB1 Prescaler bits (Bits 12:10 of CFGR)
+    // Note: Your RCC driver uses Shift 10 for PPRE1
+    uint8_t apb1_prescaler = (RCC->CFGR >> 10) & 0x7;
+
+    if(apb1_prescaler < 4)
+    {
+        // Prescaler is 1 (Not divided)
+        timer_clock_freq = pclk1;
+    }
+    else
+    {
+        // Prescaler is 2, 4, 8, or 16
+        timer_clock_freq = pclk1 * 2;
+    }
+
+    // ==========================================================
+    // STEP 2: CALCULATE THE PERFECT PRESCALER
+    // ==========================================================
+    // We want the timer to tick exactly 1,000,000 times per second (1 MHz).
+    // Formula: PSC = (Input_Freq / Target_Freq) - 1
+
+    uint16_t required_psc = (timer_clock_freq / 1000000) - 1;
+
+    // ==========================================================
+    // STEP 3: CONFIGURE TIM2
+    // ==========================================================
+    TimDelay.pTIMx = TIM2;
+    TimDelay.TIMER_Config.TIMER_Prescaler = required_psc; // <--- The Calculated Value
+    TimDelay.TIMER_Config.TIMER_Period = 0xFFFFFFFF;      // Max Range
+    TimDelay.TIMER_Config.TIMER_CounterMode = TIMER_MODE_UP;
+    TimDelay.TIMER_Config.TIMER_ClockDivision = TIMER_CKDIV_1;
+    TimDelay.TIMER_Config.TIMER_AutoReloadPreload = TIMER_ARR_BUFFERED;
+
+    TIMER_BaseInit(&TimDelay);
+    TIMER_Enable(TIM2);
+}
 
 /*********************************************************************
  * @fn              - TIMER_PeriClockControl
@@ -849,3 +918,118 @@ void TIMER_IRQHandling(TIMER_Handle_t *pTIMERHandle)
         pTIMERHandle->pTIMx->SR &= ~(1 << 0); // Clear UIF
     }
 }
+
+/*********************************************************************
+ * @fn              - TIMER_DelayUs
+ *
+ * @brief           - Microsecond delay using timer
+ *
+ * @param[in]       - Base address of Timer peripheral (use TIM2)
+ * @param[in]       - Delay in microseconds (1 to 4,294,967,295)
+ *
+ * @return          - none
+ *
+ * @Note            - Blocking delay
+ *                  - Accuracy: ±1 µs
+ *                  - Call TIMER_DelayInit() first!
+ */
+void TIMER_DelayUs(TIM_RegDef_t *pTIMx, uint32_t DelayUs)
+{
+    uint32_t start = pTIMx->CNT;
+
+    // Wait for DelayUs microseconds to elapse
+    while((pTIMx->CNT - start) < DelayUs)
+    {
+        // Busy wait (handles 32-bit counter overflow automatically)
+    }
+}
+
+/*********************************************************************
+ * @fn              - TIMER_DelayMs
+ *
+ * @brief           - Millisecond delay using timer
+ *
+ * @param[in]       - Base address of Timer peripheral (use TIM2)
+ * @param[in]       - Delay in milliseconds (1 to 4,294,967)
+ *
+ * @return          - none
+ *
+ * @Note            - Blocking delay
+ *                  - Accuracy: ±1 µs
+ *                  - Max delay: ~4294 seconds (~71 minutes)
+ */
+void TIMER_DelayMs(TIM_RegDef_t *pTIMx, uint32_t DelayMs)
+{
+    // Convert ms to µs (1 ms = 1000 µs)
+    TIMER_DelayUs(pTIMx, DelayMs * 1000);
+}
+
+
+
+/*********************************************************************
+ * @fn              - TIMER_Basic_DelayMs
+ * @brief           - Smart Delay for TIM6/TIM7.
+ * Automatically calculates Prescaler based on current system clock.
+ * @param[in]       - pTIMx: TIM6 or TIM7
+ * @param[in]       - DelayMs: Delay in milliseconds
+ *********************************************************************/
+void TIMER_Basic_DelayMs(TIM_RegDef_t *pTIMx, uint16_t DelayMs)
+{
+	TIMER_PeriClockControl(pTIMx, ENABLE);
+    // =================================================================
+    // STEP 1: CALCULATE TIMER CLOCK FREQUENCY (DYNAMICALLY)
+    // =================================================================
+    uint32_t timer_clock_freq = 0;
+    uint32_t pclk1 = RCC_GetPCLK1Value(); // Get the current APB1 Bus speed
+    uint8_t apb1_prescaler = (RCC->CFGR >> 10) & 0x7; // Read PPRE1 bits
+
+    // Hardware Rule: If APB1 Prescaler = 1, TimerClk = PCLK1. Else, TimerClk = 2 * PCLK1.
+    if(apb1_prescaler < 4) {
+        timer_clock_freq = pclk1;
+    } else {
+        timer_clock_freq = pclk1 * 2;
+    }
+
+    // =================================================================
+    // STEP 2: CONFIGURE TIMER FOR 10 kHz (0.1ms resolution)
+    // =================================================================
+    // We want 1 tick = 0.1ms (10,000 Hz)
+    // Formula: PSC = (TimerClk / TargetFreq) - 1
+    uint16_t psc_value = (timer_clock_freq / 10000) - 1;
+
+    // Reset Timer
+    pTIMx->CR1 = 0;
+    pTIMx->SR  = 0;
+
+    // Set Calculated Prescaler
+    pTIMx->PSC = psc_value;
+
+    // =================================================================
+    // STEP 3: SET DURATION
+    // =================================================================
+    // Since 1 tick = 0.1ms, we need DelayMs * 10 ticks
+    uint32_t arr_value = (DelayMs * 10);
+
+    // Safety: Clamp to 16-bit max (65535)
+    if(arr_value > 0xFFFF) arr_value = 0xFFFF;
+
+    pTIMx->ARR = (uint16_t)(arr_value - 1);
+
+    // =================================================================
+    // STEP 4: RUN TIMER
+    // =================================================================
+    // Generate Update Event to load new PSC/ARR values immediately
+    pTIMx->EGR |= (1 << 0);
+    pTIMx->SR  &= ~(1 << 0); // Clear the flag EGR just caused
+
+    // Start Timer
+    pTIMx->CR1 |= (1 << 0);
+
+    // Wait for Alarm (Flag)
+    while( ! (pTIMx->SR & (1 << 0)) );
+
+    // Stop and Clear
+    pTIMx->SR &= ~(1 << 0);
+    pTIMx->CR1 &= ~(1 << 0);
+}
+

@@ -453,9 +453,6 @@ This project is provided as-is for educational purposes.
 - HD44780 LCD datasheet
 - Matrix keypad scanning algorithms
 
-
-
-
 Advanced Features:
 
 ✅ 3-level deep menu hierarchy using tree structure

@@ -213,6 +213,7 @@
 #define CAN2_BASEADDR           	(APB1PERIPH_BASEADDR + 0x6800)     /* CAN2 base address */
 #define CEC_BASEADDR            	(APB1PERIPH_BASEADDR + 0x6C00)     /* HDMI-CEC base address */
 #define DAC_BASEADDR            	(APB1PERIPH_BASEADDR + 0x7400)     /* DAC base address */
+#define FLASH_R_BASE            	(AHB1PERIPH_BASEADDR + 0x3C00)
 #define I2C1_BASEADDR           	(APB1PERIPH_BASEADDR + 0x5400)     /* I2C1 base address */
 #define I2C2_BASEADDR           	(APB1PERIPH_BASEADDR + 0x5800)     /* I2C2 base address */
 #define I2C3_BASEADDR           	(APB1PERIPH_BASEADDR + 0x5C00)     /* I2C3 base address */
@@ -246,6 +247,7 @@
 #define ADC_COMMON_BASEADDR     	(APB2PERIPH_BASEADDR + 0x2300)
 
 #define EXTI_BASEADDR           	(APB2PERIPH_BASEADDR + 0x3C00)     /* EXTI base address */
+
 #define SAI1_BASEADDR           	(APB2PERIPH_BASEADDR + 0x5800)     /* SAI1 base address */
 #define SAI2_BASEADDR           	(APB2PERIPH_BASEADDR + 0x5C00)     /* SAI2 base address */
 #define SDIO_BASEADDR          	    (APB2PERIPH_BASEADDR + 0x2C00)
@@ -269,6 +271,7 @@
 #define ADC3        				((ADC_RegDef_t*)ADC3_BASEADDR)
 #define ADC_COMMON  				((ADC_Common_RegDef_t*)ADC_COMMON_BASEADDR)
 #define EXTI                    	((EXTI_RegDef_t*)EXTI_BASEADDR)        /* EXTI base address */
+#define FLASH                   	((FLASH_RegDef_t*)FLASH_R_BASE)
 #define GPIOA                   	((GPIO_RegDef_t*)GPIOA_BASEADDR)    /* GPIOA peripheral definition */
 #define GPIOB                   	((GPIO_RegDef_t*)GPIOB_BASEADDR)    /* GPIOB peripheral definition */
 #define GPIOC                   	((GPIO_RegDef_t*)GPIOC_BASEADDR)    /* GPIOC peripheral definition */
@@ -639,6 +642,19 @@ typedef struct
 } EXTI_RegDef_t;
 
 /*
+ * Peripheral register definition structure for FLASH
+ */
+typedef struct
+{
+    volatile uint32_t ACR;      /*!< FLASH access control register,   Address offset: 0x00 */
+    volatile uint32_t KEYR;     /*!< FLASH key register,              Address offset: 0x04 */
+    volatile uint32_t OPTKEYR;  /*!< FLASH option key register,       Address offset: 0x08 */
+    volatile uint32_t SR;       /*!< FLASH status register,           Address offset: 0x0C */
+    volatile uint32_t CR;       /*!< FLASH control register,          Address offset: 0x10 */
+    volatile uint32_t OPTCR;    /*!< FLASH option control register ,  Address offset: 0x14 */
+} FLASH_RegDef_t;
+
+/*
  * Peripheral register definition structure for GPIO
  */
 typedef struct
@@ -828,5 +844,6 @@ typedef struct
 #include "stm32f446xx_rcc_driver.h"
 #include "stm32f446xx_rtc_driver.h"
 #include "stm32f446xx_fault_handler.h"
+#include "stm32f446xx_timer_driver.h"
 
 #endif /* INC_STM32F446XX_H_ */

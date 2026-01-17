@@ -74,11 +74,11 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.2129769693" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.396674162" name="008_Fault_test.c" rcbsApplicability="disable" resourcePath="Application/Src/008_Fault_test.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.2037881858">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.2037881858" name="MCU/MPU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209"/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.1151563708" name="013_RCC_complete_function.c" rcbsApplicability="disable" resourcePath="Application/Src/013_RCC_complete_function.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.464296746">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.464296746" name="MCU/MPU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209"/>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="Src/007_rtc_uart.c|Src/006_Keypad.c|Src/005_UART_TX.c|Src/004_buttonInterruptRFT.c|Src/003_buttonInterrupt.c|Src/002_ledButton.c|Src/001_LedToggle.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Application"/>
+						<entry excluding="Src/013_RCC_complete_function.c|Src/012_HSE_SYSCLK_8MHz.c|Src/011_timer_testing.c|Src/010_adc_led.c|Src/009_adc_test.c|Src/008_Fault_test.c|Src/007_rtc_uart.c|Src/006_Keypad.c|Src/005_UART_TX.c|Src/004_buttonInterruptRFT.c|Src/003_buttonInterrupt.c|Src/002_ledButton.c|Src/001_LedToggle.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Application"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="BSP"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>
