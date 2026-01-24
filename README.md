@@ -785,7 +785,18 @@ Project Tip: You don't need all of these files for every project. If your projec
 
 
 
-
+graph TD
+    INIT[System Init] --> SLEEP(State: DEEP SLEEP)
+    SLEEP -->|Wakeup Btn| LOCKED(State: LOCKED)
+    LOCKED -->|Key Press| AUTH(State: AUTHENTICATION)
+    
+    AUTH -->|Correct PIN| MENU(State: COMMANDER MODE)
+    AUTH -->|Wrong PIN x3| LOCKOUT(State: LOCKOUT)
+    
+    LOCKOUT -->|Time > 20s| SLEEP
+    
+    MENU -->|Inactivity > 30s| SLEEP
+    MENU -->|Logout Selected| SLEEP
 
 
 

@@ -12,8 +12,8 @@
 #include "stm32f446xx.h"
 
 /* ===== SYSTEM CONFIGURATION ===== */
-#define MAX_USERS                   (10)
-#define USERNAME_LENGTH             (16)
+#define MAX_USERS                   (5)
+#define USERNAME_LENGTH             (10)
 #define PIN_LENGTH                  (4)
 #define MAX_LOGIN_ATTEMPTS          (3)
 #define LOCKOUT_TIME_SEC            (20)
@@ -68,7 +68,8 @@
 #define WAKEUP_BTN_PIN          GPIO_PIN_NO_13
 #define WAKEUP_BTN_IRQ          EXTI15_10_IRQn
 
-/* ===== ROOM CONTROL RELAYS/OUTPUTS ===== */
+/* 
+/* ===== ROOM CONTROL RELAYS/OUTPUTS ===== 
 // Using Port D for room controls
 #define ROOM_CTRL_PORT          GPIOD
 
@@ -95,7 +96,7 @@
 // Garden
 #define GARDEN_SPRINKLER_PIN    GPIO_PIN_NO_12
 #define GARDEN_LIGHT_PIN        GPIO_PIN_NO_13
-#define GARDEN_FOUNTAIN_PIN     GPIO_PIN_NO_14
+#define GARDEN_FOUNTAIN_PIN     GPIO_PIN_NO_14 */
 
 /* ===== TIMING CONSTANTS ===== */
 #define DEBOUNCE_DELAY_MS       50

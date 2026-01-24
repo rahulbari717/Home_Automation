@@ -9,10 +9,12 @@
 #define INC_STM32F446XX_FAULT_HANDLER_H_
 
 #include "stm32f446xx.h"
+#include <stdint.h>
 
 void Fault_Init(void);
 void Fault_Enable_Traps(void);
 void HardFault_Handler(void);
 void BusFault_Handler(void);
 void UsageFault_Handler(void);
+
 #endif /* INC_STM32F446XX_FAULT_HANDLER_H_ */

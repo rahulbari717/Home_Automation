@@ -5,10 +5,7 @@
  * Author: Rahul B.
  */
 
-#include "stm32f446xx.h"
-#include "stm32f446xx_iwdg_driver.h"
-#include "stm32f446xx_gpio_driver.h"
-#include "stm32f446xx_timer_driver.h"
+#include "main.h"
 
 void gpio_init(void)
 {

@@ -9,6 +9,7 @@
 #define INC_STM32F446XX_GPIO_DRIVER_H_
 
 #include "stm32f446xx.h"
+#include <stdint.h>
 
 /*
  * @GPIO_PIN_MODES

@@ -9,7 +9,7 @@
 #define INC_STM32F446XX_ADC_DRIVER_H_
 
 #include "stm32f446xx.h"
-
+#include <stdint.h>
 /*
  * @ADC_RESOLUTION
  */

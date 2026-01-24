@@ -9,6 +9,7 @@
 #define INC_STM32F446XX_RTC_DRIVER_H_
 
 #include "stm32f446xx.h"
+#include <stdint.h>
 
 /* Config Structure */
 typedef struct {

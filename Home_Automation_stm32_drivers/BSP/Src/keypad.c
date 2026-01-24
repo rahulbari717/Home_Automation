@@ -7,6 +7,9 @@
 
 #include "keypad.h"
 
+#include "stm32f446xx.h"
+#include "stm32f446xx_gpio_driver.h"
+
 /* ===== Keypad Character Map ===== */
 static const char KEYPAD_CHARS[4][4] = {
     {'1', '2', '3', 'A'},

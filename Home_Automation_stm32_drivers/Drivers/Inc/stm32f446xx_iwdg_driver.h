@@ -9,12 +9,7 @@
 #define INC_STM32F446XX_IWDG_DRIVER_H_
 
 #include "stm32f446xx.h"
-
-
-/*
- * IWDG Peripheral Definition
- */
-#define IWDG                    ((IWDG_RegDef_t*)IWDG_BASEADDR)
+#include <stdint.h>
 
 /*
  * @IWDG_KEY_VALUES

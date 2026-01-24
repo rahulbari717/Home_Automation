@@ -10,6 +10,8 @@
 #include "stm32f446xx.h"
 #include <stdint.h>
 #include <stdarg.h>
+#include <stdio.h>   // for vsnprintf
+#include <string.h> // for strlen
 
 /* Initializes GPIO PA2/PA3 and USART2 @ 115200 */
 void Debug_Init(void);
@@ -28,6 +30,11 @@ void Trigger_UnalignedAccess(void);
 void Trigger_InvalidInstruction(void);
 void Trigger_BusFault(void);
 
+/* ... other prototypes ... */
 
-#endif /* BSP_DEBUG_H_ */
+/* NEW: Function to get the UART Handle */
+USART_Handle_t* Debug_GetHandle(void);
+
+#endif /* BSP_UART2_DEBUG_H_ */
+
 

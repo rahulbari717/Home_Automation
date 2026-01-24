@@ -9,6 +9,7 @@
  */
 
 #include "stm32f446xx_fault_handler.h"
+
 /* Provided by your UART driver */
 extern void UART_Printf(const char *format, ...);
 

@@ -5,9 +5,16 @@
  *      Author: lenovo
  */
 
+#include <stdio.h>
+#include <string.h>
+
+#include "stm32f446xx.h"
+#include "stm32f446xx_gpio_driver.h"
+#include "stm32f446xx_usart_driver.h"
+#include "stm32f446xx_rcc_driver.h"
+#include "stm32f446xx_fault_handler.h"
 
 #include "bsp_uart2_debug.h"
-#include "stm32f446xx.h"
 
 // Private Handle
 static USART_Handle_t usart2_handle;
@@ -115,6 +122,12 @@ void Trigger_BusFault(void)
     volatile uint32_t *p = (uint32_t*)0xFFFFFFFF;
     volatile uint32_t val = *p; // CRASH: BusFault
     (void)val;
+}
+
+/* NEW IMPLEMENTATION */
+USART_Handle_t* Debug_GetHandle(void)
+{
+    return &usart2_handle;
 }
 
 

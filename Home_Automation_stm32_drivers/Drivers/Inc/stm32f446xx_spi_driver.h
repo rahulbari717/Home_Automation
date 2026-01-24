@@ -9,6 +9,7 @@
 #define INC_STM32F446XX_SPI_DRIVER_H_
 
 #include "stm32f446xx.h"
+#include <stdint.h>
 
 /*
  * Configuration structure for SPIx peripheral

@@ -9,6 +9,9 @@
 #define INC_STM32F446XX_I2C_DRIVER_H_
 
 #include "stm32f446xx.h"
+#include "stm32f446xx_rcc_driver.h"
+
+#include <stdint.h>
 
 #define MY_ADDRESS 				(0x61)
 
