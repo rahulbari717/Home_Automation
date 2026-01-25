@@ -48,7 +48,6 @@ void Fault_Handler_C(uint32_t *stacked_regs, const char *fault_name)
     while(1);
 }
 
-
 // --- Assembly Wrappers ---
 
 __attribute__((naked)) void HardFault_Handler(void)

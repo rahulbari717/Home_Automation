@@ -170,7 +170,7 @@ RCC_StatusTypeDef RCC_ClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_
 void RCC_SetSystemClock_HSE(uint32_t targetFreq, uint32_t mode);
 void RCC_SetSystemClock_HSI(void);
 void SystemClock_Config_HSE_180MHz(void);
-
+void RCC_Config_MaxSpeed(void);
 /* Get Clock Values */
 uint32_t RCC_GetPCLK1Value(void);
 uint32_t RCC_GetPCLK2Value(void);

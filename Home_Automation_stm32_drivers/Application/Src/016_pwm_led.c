@@ -5,8 +5,12 @@
  */
 
 #include "stm32f446xx.h"
+#include "stm32f446xx_timer_driver.h"
+#include "stm32f446xx_gpio_driver.h"
+#include "stm32f446xx_usart_driver.h"
 
 TIMER_Handle_t htimer2;
+USART_Handle_t usart2_handle;
 
 void gpio_init(void)
 {

@@ -6,9 +6,7 @@
  */
 
 #include "bsp_i2c_oled.h"
-#include <string.h>
-#include <stdio.h>  // Required for vsnprintf
-#include <stdarg.h> // Required for va_list
+#include "main.h"
 
 // --- Global Handles ---
 I2C_Handle_t g_OledI2cHandle;
@@ -115,7 +113,7 @@ static const uint8_t Font5x7[][5] = {
     {0x10, 0x08, 0x08, 0x10, 0x08}  // ~
 };
 // Helper: Write Command
-static void OLED_WriteCmd(uint8_t cmd) {
+void OLED_WriteCmd(uint8_t cmd) {
     uint8_t data[2];
     data[0] = OLED_CONTROL_CMD; // 0x00
     data[1] = cmd;
@@ -124,69 +122,20 @@ static void OLED_WriteCmd(uint8_t cmd) {
 }
 
 // Helper: Initialize I2C Pins (PB6=SCL, PB7=SDA)
-static void OLED_GPIO_Init(void) {
+void OLED_GPIO_Init(void) {
     GPIO_Handle_t i2c_gpio;
     i2c_gpio.pGPIOx = GPIOB;
     i2c_gpio.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
-    i2c_gpio.GPIO_PinConfig.GPIO_PinAltFunMode = 4; // AF4 = I2C1
+    i2c_gpio.GPIO_PinConfig.GPIO_PinAltFunMode = OLED_I2C_AF; // AF4 = I2C1
     i2c_gpio.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_OD; // Open Drain
     i2c_gpio.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU; // Pull Up
     i2c_gpio.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 
-    i2c_gpio.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_6; // SCL
+    i2c_gpio.GPIO_PinConfig.GPIO_PinNumber = OLED_SCL_PIN; // SCL
     GPIO_Init(&i2c_gpio);
 
-    i2c_gpio.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_7; // SDA
+    i2c_gpio.GPIO_PinConfig.GPIO_PinNumber = OLED_SDA_PIN; // SDA
     GPIO_Init(&i2c_gpio);
-}
-
-void BSP_OLED_Init(void) {
-    // 1. Init GPIOs
-    OLED_GPIO_Init();
-
-    // 2. Init I2C Peripheral
-    g_OledI2cHandle.pI2Cx = I2C1;
-    g_OledI2cHandle.I2C_Config.I2C_AckControl = I2C_ACK_ENABLE;
-    g_OledI2cHandle.I2C_Config.I2C_DeviceAddress = 0x61; // My Master Address (Arbitrary)
-    g_OledI2cHandle.I2C_Config.I2C_FMDutyCycle = I2C_FM_DUTY_2;
-    g_OledI2cHandle.I2C_Config.I2C_SCLSpeed = I2C_SCL_SPEED_SM; // 100KHz
-    I2C_Init(&g_OledI2cHandle);
-
-    // Enable I2C Peripheral
-    I2C_PeripheralControl(I2C1, ENABLE);
-
-    // 3. SSD1306 Startup Sequence
-    OLED_WriteCmd(0xAE); // Display OFF
-    OLED_WriteCmd(0x20); // Set Memory Addressing Mode
-    OLED_WriteCmd(0x00); // Horizontal Addressing
-    OLED_WriteCmd(0xB0); // Set Page Start Address
-    OLED_WriteCmd(0xC8); // Set COM Output Scan Direction
-    OLED_WriteCmd(0x00); // Set Low Column Address
-    OLED_WriteCmd(0x10); // Set High Column Address
-    OLED_WriteCmd(0x40); // Set Start Line
-    OLED_WriteCmd(0x81); // Set Contrast
-    OLED_WriteCmd(0xFF);
-    OLED_WriteCmd(0xA1); // Set Segment Re-map
-    OLED_WriteCmd(0xA6); // Set Normal Display
-    OLED_WriteCmd(0xA8); // Set Multiplex Ratio
-    OLED_WriteCmd(0x3F);
-    OLED_WriteCmd(0xA4); // Output Follows RAM
-    OLED_WriteCmd(0xD3); // Set Display Offset
-    OLED_WriteCmd(0x00);
-    OLED_WriteCmd(0xD5); // Set Clock Divide Ratio
-    OLED_WriteCmd(0xF0);
-    OLED_WriteCmd(0xD9); // Set Pre-charge Period
-    OLED_WriteCmd(0x22);
-    OLED_WriteCmd(0xDA); // Set COM Pins Hardware Config
-    OLED_WriteCmd(0x12);
-    OLED_WriteCmd(0xDB); // Set VCOMH Deselect Level
-    OLED_WriteCmd(0x20);
-    OLED_WriteCmd(0x8D); // Charge Pump Setting
-    OLED_WriteCmd(0x14); // Enable Charge Pump
-    OLED_WriteCmd(0xAF); // Display ON
-
-    BSP_OLED_Clear();
-    BSP_OLED_Update();
 }
 
 void BSP_OLED_Clear(void) {
@@ -279,4 +228,53 @@ void BSP_OLED_DrawBitmap(const uint8_t *bitmap) {
     // 128 cols * 64 rows / 8 bits = 1024 bytes
     // We copy the external array directly into our screen buffer
     memcpy(OLED_Buffer, bitmap, 1024);
+}
+
+void BSP_OLED_Init(void) {
+    // 1. Init GPIOs
+    OLED_GPIO_Init();
+
+    // 2. Init I2C Peripheral
+    g_OledI2cHandle.pI2Cx = I2C1;
+    g_OledI2cHandle.I2C_Config.I2C_AckControl = I2C_ACK_ENABLE;
+    g_OledI2cHandle.I2C_Config.I2C_DeviceAddress = 0x61;
+    g_OledI2cHandle.I2C_Config.I2C_FMDutyCycle = I2C_FM_DUTY_2;
+    g_OledI2cHandle.I2C_Config.I2C_SCLSpeed = I2C_SCL_SPEED_SM;
+    I2C_Init(&g_OledI2cHandle);
+
+    // Enable I2C Peripheral
+    I2C_PeripheralControl(I2C1, ENABLE);
+
+    // 3. SSD1306 Startup Sequence
+    OLED_WriteCmd(0xAE); // Display OFF
+    OLED_WriteCmd(0x20); // Set Memory Addressing Mode
+    OLED_WriteCmd(0x00); // Horizontal Addressing
+    OLED_WriteCmd(0xB0); // Set Page Start Address
+    OLED_WriteCmd(0xC8); // Set COM Output Scan Direction
+    OLED_WriteCmd(0x00); // Set Low Column Address
+    OLED_WriteCmd(0x10); // Set High Column Address
+    OLED_WriteCmd(0x40); // Set Start Line
+    OLED_WriteCmd(0x81); // Set Contrast
+    OLED_WriteCmd(0xFF);
+    OLED_WriteCmd(0xA1); // Set Segment Re-map
+    OLED_WriteCmd(0xA6); // Set Normal Display
+    OLED_WriteCmd(0xA8); // Set Multiplex Ratio
+    OLED_WriteCmd(0x3F);
+    OLED_WriteCmd(0xA4); // Output Follows RAM
+    OLED_WriteCmd(0xD3); // Set Display Offset
+    OLED_WriteCmd(0x00);
+    OLED_WriteCmd(0xD5); // Set Clock Divide Ratio
+    OLED_WriteCmd(0xF0);
+    OLED_WriteCmd(0xD9); // Set Pre-charge Period
+    OLED_WriteCmd(0x22);
+    OLED_WriteCmd(0xDA); // Set COM Pins Hardware Config
+    OLED_WriteCmd(0x12);
+    OLED_WriteCmd(0xDB); // Set VCOMH Deselect Level
+    OLED_WriteCmd(0x20);
+    OLED_WriteCmd(0x8D); // Charge Pump Setting
+    OLED_WriteCmd(0x14); // Enable Charge Pump
+    OLED_WriteCmd(0xAF); // Display ON
+
+    BSP_OLED_Clear();
+    BSP_OLED_Update();
 }

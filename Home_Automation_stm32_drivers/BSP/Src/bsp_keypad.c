@@ -5,7 +5,7 @@
  *      Author: Rahul Bari
  */
 
-#include "keypad.h"
+#include "bsp_keypad.h"
 
 #include "stm32f446xx.h"
 #include "stm32f446xx_gpio_driver.h"
@@ -40,39 +40,6 @@ void Keypad_Delay(uint32_t delay)
     for(uint32_t i = 0; i < delay * 1000; i++);
 }
 
-/* ===== KEYPAD INITIALIZATION ===== */
-void Keypad_Init(void)
-{
-    GPIO_Handle_t keypad_gpio;
-    
-    // Enable GPIOB Clock
-    GPIOB_PCLK_EN();
-    
-    // Configure Rows as Output (Push-Pull, No Pull-up/down)
-    keypad_gpio.pGPIOx = KEYPAD_ROW_PORT;
-    keypad_gpio.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
-    keypad_gpio.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
-    keypad_gpio.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
-    keypad_gpio.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
-    
-    for(int i = 0; i < 4; i++)
-    {
-        keypad_gpio.GPIO_PinConfig.GPIO_PinNumber = ROW_PINS[i];
-        GPIO_Init(&keypad_gpio);
-        GPIO_WriteToOutputPin(KEYPAD_ROW_PORT, ROW_PINS[i], GPIO_PIN_SET); // Set all rows HIGH initially
-    }
-    
-    // Configure Columns as Input with Pull-up
-    keypad_gpio.pGPIOx = KEYPAD_COL_PORT;
-    keypad_gpio.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_IN;
-    keypad_gpio.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU; // Pull-up resistor
-    
-    for(int i = 0; i < 4; i++)
-    {
-        keypad_gpio.GPIO_PinConfig.GPIO_PinNumber = COL_PINS[i];
-        GPIO_Init(&keypad_gpio);
-    }
-}
 
 /* ===== GET KEY PRESS ===== */
 char Keypad_GetKey(void)

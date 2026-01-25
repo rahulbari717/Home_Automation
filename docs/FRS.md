@@ -1,147 +1,94 @@
-# Functional Requirements Specification (FRS): Home Automation 
+# Functional Requirements Specification (FRS)
+## Project: The Citadel — Bare-Metal Home Security & Automation
 
-**Version:** 2.0  
-**Date:** January 2026  
-**Author:** Rahul Bari.  
-
----
-
-## 1. Document Overview
-
-### 1.1 Purpose
-This document defines the functional requirements for "The Citadel," a bare-metal embedded security and automation system. It aligns with the firmware architecture designed to demonstrate register-level driver mastery.
-
-### 1.2 Scope
-The Citadel is a **centralized embedded controller** (STM32F446RE) responsible for:
-- **Access Control:** User authentication via PIN and Keypad.
-- **Home Automation:** Control of appliances (simulated via Relays/LEDs).
-- **System Monitoring:** Real-time sensor tracking (Temperature, Gas, Light).
-- **Safety:** Local alarm handling and fault logging.
+**Document Number:** FRS-CITADEL-001  
+**Version:** 3.0  
+**Date:** January 24, 2026  
+**Author:** Rahul Bari, Embedded Developer  
+**Status:** Active Development  
+**Classification:** Internal Use
 
 ---
 
-## 2. System Modes (The Core Concept)
+## 1. Project Overview
+The Citadel is a high-performance, bare-metal embedded controller designed for home security and automation. To ensure maximum efficiency and deep hardware understanding, the system bypasses HAL and RTOS, utilizing pure register-level drivers.
 
-The system operates in two distinct Finite State Machine (FSM) modes:
+### 1.1 Architecture Stack
+1. **Application Layer:** Finite State Machine (FSM) for Security and User Interface.
+2. **BSP (Board Support Package):** Component-specific drivers (LCD, Keypad, Sensors).
+3. **Driver Layer:** Low-level register access (GPIO, UART, ADC, IWDG).
 
-### 2.1 "The Gatekeeper" (Security Mode)
-The default state. The system is defensive.
-- **Input:** 4x4 Matrix Keypad.
-- **Display:** 16x2 LCD (Shows "LOCKED").
-- **Goal:** Prevent unauthorized access.
 
-### 2.2 "The Commander" (Control Mode)
-The active state after successful login.
-- **Input:** Keypad used for menu navigation.
-- **Display:** LCD shows menus (Rooms, Status, Settings).
-- **Goal:** Allow user to toggle relays and view sensor data.
 
----
-
-## 3. System Features
-
-### 3.1 Feature: Access Control & Security
-
-#### REQ-SEC-001: PIN Authentication
-**Priority:** HIGH
-**User Story:** *"As a user, I want to unlock the system using a secure code so that only authorized people can control my home."*
-
-**Acceptance Criteria:**
-1. System shall accept a 4-digit PIN input via 4x4 Keypad.
-2. LCD shall mask digits as `*` during entry.
-3. **Success:** Green LED ON, LCD shows "WELCOME", transition to *Commander Mode*.
-4. **Failure:** Red LED blink, Buzzer beep (200ms), LCD shows "INVALID PIN".
-5. **Lockout:** After 3 incorrect attempts, system shall lock keypad for 60 seconds.
-
-#### REQ-SEC-002: Intrusion Detection
-**Priority:** MEDIUM
-**User Story:** *"As a user, I want an alarm to sound if a door is forced open."*
-
-**Acceptance Criteria:**
-1. System shall monitor a Reed Switch (GPIO Input) on the main door.
-2. If door opens while system is LOCKED:
-   - Trigger Buzzer (Continuous Alarm).
-   - Log event "INTRUSION" to UART console.
+### 1.2 Target Hardware
+* **MCU:** STM32F446RE Nucleo-64 (Cortex-M4F)
+* **Clock:** 84MHz (HSE 8MHz → PLL)
+* **Memory:** 512KB Flash / 128KB SRAM
 
 ---
 
-### 3.2 Feature: Home Automation (The Commander)
+## 2. Hardware Mapping & Status
 
-#### REQ-AUTO-001: Menu Navigation
-**Priority:** HIGH
-**User Story:** *"As a user, I want to scroll through options to find the device I want to control."*
-
-**Acceptance Criteria:**
-1. System shall display a hierarchical menu on 16x2 LCD.
-2. Navigation Keys:
-   - `2`: Up
-   - `8`: Down
-   - `5`: Enter/Select
-   - `0`: Back
-3. LCD shall update within 100ms of keypress.
-
-#### REQ-AUTO-002: Device Control
-**Priority:** HIGH
-**User Story:** *"As a user, I want to turn my Living Room lights on/off."*
-
-**Acceptance Criteria:**
-1. Menu shall provide options for "Living Room Light" and "Fan".
-2. Selecting "ON" shall trigger the corresponding Relay (GPIO Output).
-3. Status LED on the board shall reflect the Relay state.
-
-#### REQ-AUTO-003: Ambient Lighting (PWM)
-**Priority:** MEDIUM
-**User Story:** *"As a user, I want the status LED to breathe softly so I know the system is alive without it being annoying."*
-
-**Acceptance Criteria:**
-1. System shall use a Timer in PWM mode to fade an LED.
-2. Frequency: 1 kHz.
-3. Duty cycle shall vary from 0% to 100% and back every 2 seconds.
+| Category | Component | Pins | Status |
+| :--- | :--- | :--- | :--- |
+| **Input** | 4x4 Matrix Keypad | PB0 - PB7 | ✅ Working |
+| | User Button | PC13 | ✅ Working |
+| **Display** | LCD 16x2 | PC0 - PC5 | ✅ Working |
+| | OLED 128x64 | PB8, PB9 (I2C1) | ✅ Working |
+| **Sensors** | LDR (Light Sensors) | PA0, PA1 (ADC1) | ✅ Working |
+| | PIR / IR / RCWL | PC6 - PC10 | 🛑 Pending |
+| | HC-SR04 (Ultrasonic) | PC11, PC12 | 🛑 Pending |
+| **Output** | Relays (x4) | PB10, PB12 - PB14| 🛑 Pending |
+| | Buzzer / LEDs | PA4 - PA6 | 🚧 In Progress |
+| **Comm** | Bluetooth (HC-05) | PA9, PA10 (UART1) | 🛑 Pending |
+| | Debug Console | PA2, PA3 (UART2) | ✅ Working |
 
 ---
 
-### 3.3 Feature: Environmental Monitoring
+## 3. Functional Requirements
 
-#### REQ-ENV-001: Temperature Monitoring
-**Priority:** MEDIUM
-**User Story:** *"As a user, I want to check the current room temperature."*
+### 3.1 Security & Access (The Gatekeeper)
+* **PIN Authentication:** Users must enter a 4-digit code.
+* **Lockout Logic:** System triggers a 60-second lockout after 3 failed attempts.
+* **Intrusion Logic:** While in **LOCKED** state, triggering any motion sensor (PIR/RCWL) activates the buzzer and logs an alert.
 
-**Acceptance Criteria:**
-1. System shall read the internal temperature sensor (ADC).
-2. Value shall be displayed on the LCD "Status" screen.
-3. If Temp > 40°C, system shall trigger a "High Temp" warning on LCD.
+### 3.2 Automation & UI (The Commander)
+* **Menu System:** A hierarchical FSM navigated via keypad:
+  * `2` (Up) | `8` (Down) | `5` (Select) | `0` (Back) | `#` (Logout).
+* **Relay Mapping:**
+  1. Living Room Light (PB10)
+  2. Kitchen Exhaust (PB12)
+  3. Bedroom AC (PB13)
+  4. Garden Sprinkler (PB14)
 
-#### REQ-ENV-002: Light Sensing
-**Priority:** LOW
-**User Story:** *"As a user, I want the system to know if it is dark."*
+### 3.3 Environmental Monitoring
+* **Auto-Lighting:** If LDR values fall below the threshold (Night), activate Night Light.
+* **Thermal Monitoring:** Read internal MCU temperature via ADC; display warning on LCD if > 40°C.
 
-**Acceptance Criteria:**
-1. System shall read an LDR (Light Dependent Resistor) via ADC polling.
-2. If ADC Value < Threshold (Dark), system shall auto-enable the "Night Light" LED.
+### 3.4 Remote Control (Bluetooth)
+* Serial control via HC-05 module using a command-response protocol:
+  * `AUTH <PIN>`
+  * `RELAY <ID> <ON/OFF>`
+  * `STATUS` (Returns system state and sensor data)
 
 ---
 
-## 4. Non-Functional Requirements (Technical Constraints)
+## 4. Technical Specifications (NFR)
 
 | ID | Category | Requirement |
-|----|----------|-------------|
-| **NFR-001** | **Latency** | Keypad press to LCD update must be < 100ms. |
-| **NFR-002** | **Reliability** | Watchdog Timer (IWDG) must reset system if it hangs for > 2 seconds. |
-| **NFR-003** | **Architecture** | Code must be strictly layered: Drivers must NOT call Application functions. |
-| **NFR-004** | **Hardware** | Solution must run on STM32F446RE with no external OS (Bare Metal). |
-| **NFR-005** | **Debug** | System must log critical events (Boot, Login, Error) to UART at 115200 baud. |
+| :--- | :--- | :--- |
+| **NFR-01** | Latency | Keypad/LCD UI response < 100ms. |
+| **NFR-02** | Reliability | Watchdog (IWDG) reset if system hangs for > 2s. |
+| **NFR-03** | Communication | UART Debug @ 115200 bps; Bluetooth @ 9600 bps. |
+| **NFR-04** | Safety | All relays MUST default to OFF during logout or reset. |
 
 ---
 
-## 5. Traceability Matrix
-
-| Requirement | Driver Required | BSP Module Required | Test Case |
-| :--- | :--- | :--- | :--- |
-| **REQ-SEC-001** (PIN) | GPIO | Keypad, LCD, LED | TC-AUTH-01 |
-| **REQ-AUTO-003** (PWM) | Timer (PWM) | LED | TC-PWM-01 |
-| **REQ-ENV-001** (Temp) | ADC | Sensor | TC-ADC-01 |
-| **NFR-002** (Watchdog) | IWDG | None | TC-SYS-01 |
+## 5. Development Roadmap
+1. **Drivers:** Complete register-level modules for Timers and PWM. ✅
+2. **BSP:** Develop `bsp_bluetooth.c` and `bsp_relay.c`. 🚧
+3. **Application:** Build the Menu FSM and PIN Authentication logic. 🛑
+4. **Integration:** Final system testing and "The Citadel" main loop optimization. 🛑
 
 ---
-
-**END OF FUNCTIONAL REQUIREMENTS SPECIFICATION**
+**END OF REQUIREMENTS**

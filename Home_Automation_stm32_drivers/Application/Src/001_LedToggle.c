@@ -5,28 +5,15 @@
  *      Author: Rahul Bari.
  */
 
-
-#include <stm32f446xx.h>
+#include "bsp_init.h"
 
 void delay(void){
-	for(int i=0; i<500000; i++);
-}
-
-void gpio_init(){
-	GPIO_Handle_t GpioLed;
-	GpioLed.pGPIOx = GPIOA;
-	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_5;
-	GpioLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
-	GpioLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
-	GpioLed.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
-	GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
-
-	GPIO_Init(&GpioLed);
+	for(int i=0; i<50000000; i++);
 }
 
 int main(){
 
-	gpio_init();
+	app_init();
 
 	while(1){
 		GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_NO_5);

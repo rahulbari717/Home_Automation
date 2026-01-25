@@ -8,21 +8,14 @@
  * Author: Rahul B.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdlib.h> // for atoi
-
-#include "stm32f446xx.h"
-#include "stm32f446xx_rtc_driver.h"
-#include "stm32f446xx_usart_driver.h"
-#include "stm32f446xx_timer_driver.h"
+#include "bsp_init.h"
 #include "bsp_uart2_debug.h"
 #include "bsp_i2c_oled.h"
 
 // --- Global Handles ---
 RTC_Handle_t rtc_handle;
 const char *days[] = {"", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+USART_Handle_t usart2_handle;
 
 // --- Helper Functions (Copied from your code) ---
 uint8_t Get_Number_Input(uint8_t max_digits) {
@@ -70,9 +63,9 @@ void RTC_Setup_Interactive(void) {
 
 int main(void)
 {
+    app_init();
     // 1. Initialize Drivers
     TIMER_DelayInit();
-    Debug_Init();         // Init UART
     BSP_OLED_Init();      // Init OLED
 
     // 2. Clear Screen
@@ -97,7 +90,7 @@ int main(void)
         BSP_OLED_Clear();
 
         // Print Header (Inverted colors logic if you had it, or just text)
-        OLED_Printf(0, 0, ">> STM32 CLOCK <<");
+        OLED_Printf(0, 0, ">> Rahul's CLOCK <<");
 
         // Print Time (Large format if font supported, otherwise standard)
         // Centering text: (128 - (8chars * 5px)) / 2 = approx x=40

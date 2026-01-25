@@ -11,15 +11,15 @@
  * 3. Fault_Enable_Traps() must be available in the driver to set SCB->CCR bits.
  */
 
-#include "stm32f446xx.h"
+#include "bsp_init.h"
 #include "bsp_uart2_debug.h"
-
+USART_Handle_t usart2_handle;
 void test_fault();
 
 int main(void)
 {
     // 1. Init System
-    Debug_Init();        // Initialize UART2 via BSP
+    app_init();         // Initialize UART2 via BSP
     test_fault();
 
 }

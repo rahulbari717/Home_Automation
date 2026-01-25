@@ -21,8 +21,10 @@
 
 /* 2. The Silicon (Hardware Definitions) */
 #include "stm32f446xx.h"
+#include "config.h"
 
 /* 3. The Drivers (Hardware Abstraction) */
+#include "stm32f446xx_adc_driver.h"
 #include "stm32f446xx_gpio_driver.h"
 #include "stm32f446xx_spi_driver.h"
 #include "stm32f446xx_i2c_driver.h"

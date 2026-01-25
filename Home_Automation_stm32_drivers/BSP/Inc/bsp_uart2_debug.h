@@ -7,14 +7,7 @@
 #ifndef INC_BSP_UART2_DEBUG_H_
 #define INC_BSP_UART2_DEBUG_H_
 
-#include "stm32f446xx.h"
-#include <stdint.h>
-#include <stdarg.h>
-#include <stdio.h>   // for vsnprintf
-#include <string.h> // for strlen
-
-/* Initializes GPIO PA2/PA3 and USART2 @ 115200 */
-void Debug_Init(void);
+#include "main.h"
 
 /* printf style function for UART */
 void UART_Printf(const char *format, ...);

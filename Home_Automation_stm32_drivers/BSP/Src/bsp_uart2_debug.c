@@ -5,59 +5,11 @@
  *      Author: lenovo
  */
 
-#include <stdio.h>
-#include <string.h>
-
-#include "stm32f446xx.h"
-#include "stm32f446xx_gpio_driver.h"
-#include "stm32f446xx_usart_driver.h"
-#include "stm32f446xx_rcc_driver.h"
-#include "stm32f446xx_fault_handler.h"
 
 #include "bsp_uart2_debug.h"
+#include "bsp_init.h"
 
-// Private Handle
-static USART_Handle_t usart2_handle;
-
-// Private Helper
-static void USART2_GPIOInit(void)
-{
-    GPIO_Handle_t usart_gpios;
-    usart_gpios.pGPIOx = GPIOA;
-    usart_gpios.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
-    usart_gpios.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
-    usart_gpios.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU;
-    usart_gpios.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
-    usart_gpios.GPIO_PinConfig.GPIO_PinAltFunMode = 7;
-
-    usart_gpios.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_2; // TX
-    GPIO_Init(&usart_gpios);
-
-    usart_gpios.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_3; // RX
-    GPIO_Init(&usart_gpios);
-}
-
-void Debug_Init(void)
-{
-    USART2_GPIOInit();
-
-    usart2_handle.pUSARTx = USART2;
-    usart2_handle.USART_Config.USART_Baud = USART_STD_BAUD_115200;
-    usart2_handle.USART_Config.USART_HWFlowControl = USART_HW_FLOW_CTRL_NONE;
-    usart2_handle.USART_Config.USART_Mode = USART_MODE_TXRX;
-    usart2_handle.USART_Config.USART_NoOfStopBits = USART_STOPBITS_1;
-    usart2_handle.USART_Config.USART_WordLength = USART_WORDLEN_8BITS;
-    usart2_handle.USART_Config.USART_ParityControl = USART_PARITY_DISABLE;
-
-    USART_Init(&usart2_handle);
-    USART_PeripheralControl(USART2, ENABLE);
-
-    Fault_Init();        // Initialize Fault Handlers
-    Fault_Enable_Traps(); // Enable Div0 & Unaligned traps
-}
-
-void UART_Printf(const char *format, ...)
-{
+void UART_Printf(const char *format, ...) {
     char buffer[256];
     va_list args;
     va_start(args, format);
@@ -78,7 +30,6 @@ void Debug_ClearScreen(void)
     // VT100 Escape codes to clear screen and move cursor home
     UART_Printf("\033[2J\033[H");
 }
-
 
 /* ================= FAULT TRIGGERS ================= */
 
@@ -129,6 +80,3 @@ USART_Handle_t* Debug_GetHandle(void)
 {
     return &usart2_handle;
 }
-
-
-
