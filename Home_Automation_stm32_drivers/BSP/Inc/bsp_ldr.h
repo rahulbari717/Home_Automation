@@ -6,17 +6,17 @@
  * Description: BSP for Potentiometer and LDR on The Citadel
  */
 
-#ifndef INC_BSP_ADC_SENSORS_H_
-#define INC_BSP_ADC_SENSORS_H_
+#ifndef INC_BSP_LDR_H_
+#define INC_BSP_LDR_H_
 #include "main.h"
 /*
  * Function Prototypes
  */
-
+void BSP_LDR_init(void);
 // Read raw value from Potentiometer (0-4095)
 uint16_t BSP_Sensor_ReadPot(void);
 
 // Read raw value from LDR (0-4095)
 uint16_t BSP_Sensor_ReadLDR(uint8_t channel);
 
-#endif /* INC_BSP_ADC_SENSORS_H_ */
+#endif /* INC_BSP_LDR_H_ */

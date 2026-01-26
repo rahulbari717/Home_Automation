@@ -24,3 +24,27 @@ void EXTI15_10_IRQHandler(void){
 	GPIO_IRQHandling(GPIO_PIN_NO_13); // Clear the pending bit
 	GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_NO_5); // Toggle LED
 }
+
+/*
+ * #include "bsp_button.h"
+#include "bsp_led.h"
+
+int main(void) {
+    BSP_LED_Init();
+    BSP_Button_Init(); // This sets up the EXTI
+
+    while(1);
+    return 0;
+}
+
+// Override the callback to toggle the LED
+void BSP_Button_Callback(void) {
+    BSP_LED_Toggle(LED_GREEN_PIN);
+}
+
+// The actual ISR in main.c or it.c
+void EXTI15_10_IRQHandler(void) {
+    BSP_Button_IRQHandling();
+}
+ *
+ * */

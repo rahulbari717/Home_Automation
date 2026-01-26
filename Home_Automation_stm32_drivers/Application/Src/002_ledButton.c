@@ -30,3 +30,23 @@ int main(){
 
 	return 0;
 }
+
+/*
+ * #include "bsp_button.h"
+#include "bsp_led.h"
+
+int main(void) {
+    BSP_LED_Init();
+    BSP_Button_Init();
+
+    while(1) {
+        if(BSP_Button_GetState() == BSP_BUTTON_PRESSED) {
+            BSP_LED_Write(LED_GREEN_PIN, GPIO_PIN_SET);
+        } else {
+            BSP_LED_Write(LED_GREEN_PIN, GPIO_PIN_RESET);
+        }
+    }
+}
+ *
+ *
+ * */

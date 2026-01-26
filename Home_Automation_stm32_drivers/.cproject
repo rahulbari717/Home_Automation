@@ -74,8 +74,8 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.2129769693" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.201476209" name="main.c" rcbsApplicability="disable" resourcePath="Src/main.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.1154119083">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.1154119083" name="MCU/MPU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209"/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.26506860" name="main.c" rcbsApplicability="disable" resourcePath="Src/main.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.1037311316">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209.1037311316" name="MCU/MPU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.578896209"/>
 					</fileInfo>
 					<folderInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.80118083" name="/" resourcePath="Application/Inc">
 						<toolChain id="com.st.stm32cube.ide.mcu.gnu.managedbuild.toolchain.exe.debug.1905102630" name="MCU ARM GCC" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.toolchain.exe.debug" unusedChildren="">
@@ -114,8 +114,11 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.1045984933" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.2129769693"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.985602918" name="bsp_init.h" rcbsApplicability="disable" resourcePath="BSP/Inc/bsp_init.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.2145237945" name="bsp_sensors.h" rcbsApplicability="disable" resourcePath="BSP/Inc/bsp_sensors.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.417825292.1102934058" name="bsp_adc_sensors.h" rcbsApplicability="disable" resourcePath="BSP/Inc/bsp_ldr.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Src/022_oled_face.c|Src/024_lcd_dashboard.c|Src/021_oled_clock.c|Src/016_pwm_led.c|Src/014_basic_timer_100ms.c|Src/015_basic_timer_100ms_IT.c|Src/011_timer_testing.c|Src/010_adc_led.c|Src/028_relay_toggling.c|Src/009_adc_test.c|Src/008_Fault_test.c|Src/027_rtc_uart.c|Src/007_testing_of_menu.c|Src/006_Keypad.c|Src/005_UART_TX.c|Src/004_buttonInterruptRFT.c|Src/003_buttonInterrupt.c|Src/002_ledButton.c|Src/001_LedToggle.c|Src/026_sensor_array.c|Src/025_bluetooth_test.c|Src/020_oled_i2c.c|Src/023_lcd_test.c|Src/22_oled_face.c|Src/21_oled_clock.c|Src/20_oled_i2c.c|Src/018_Smart_Room_Controller.c|Src/017_IWDT_usages.c|Src/019_DMA_Examples.c|Src/013_RCC_complete_function.c|Src/012_HSE_SYSCLK_8MHz.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Application"/>
+						<entry excluding="Src/029_bsp_testing.c|Src/001_LedToggle.c|Src/022_oled_face.c|Src/024_lcd_dashboard.c|Src/021_oled_clock.c|Src/016_pwm_led.c|Src/014_basic_timer_100ms.c|Src/015_basic_timer_100ms_IT.c|Src/011_timer_testing.c|Src/010_adc_led.c|Src/028_relay_toggling.c|Src/009_adc_test.c|Src/008_Fault_test.c|Src/027_rtc_uart.c|Src/007_testing_of_menu.c|Src/006_Keypad.c|Src/005_UART_TX.c|Src/004_buttonInterruptRFT.c|Src/003_buttonInterrupt.c|Src/002_ledButton.c|Src/026_sensor_array.c|Src/025_bluetooth_test.c|Src/020_oled_i2c.c|Src/023_lcd_test.c|Src/22_oled_face.c|Src/21_oled_clock.c|Src/20_oled_i2c.c|Src/018_Smart_Room_Controller.c|Src/017_IWDT_usages.c|Src/019_DMA_Examples.c|Src/013_RCC_complete_function.c|Src/012_HSE_SYSCLK_8MHz.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Application"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="BSP"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>
