@@ -5,12 +5,10 @@
  *      Author: lenovo
  */
 
-
 #include "bsp_uart2_debug.h"
 #include "bsp_init.h"
 
 USART_Handle_t usart2_handle;
-
 
 /* ===== USART2 GPIO Initialization ===== */
 void USART2_GPIOInit(void) {

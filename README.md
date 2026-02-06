@@ -1,249 +1,315 @@
-# The Citadel: Distributed Industrial Home Automation System
+# Smart Home Automation System - (STM32F446RE)
 
 ![Platforms](https://img.shields.io/badge/Platforms-STM32%20%7C%20ESP32-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-Distributed%20%7C%20CAN%20%7C%20SPI-orange)
 ![RTOS](https://img.shields.io/badge/OS-FreeRTOS%20%7C%20ESP--IDF-purple)
 ![License](https://img.shields.io/github/license/rahulbari717/embedded-systems-toolkit?color=green)
 
-**A heterogeneous, safety-critical distributed control system using a star-topology network.**
+**A bare-metal embedded home automation system with finite state machine architecture, featuring multi-sensor monitoring, device control, and secure keypad authentication.**
 
-This project goes beyond simple IoT by implementing an industrial-grade architecture where a **Real-Time Control Unit (STM32)** orchestrates multiple **Networked Nodes (ESP32)** via wired differential buses. It demonstrates how to decouple safety logic from cloud connectivity, ensuring that a WiFi failure never compromises physical automation.
-
-## 🎯 Core Focus & Architecture
-
-This repository is structured as a **Monorepo**, integrating four distinct microcontroller boards into a unified control plane.
-
-| Platform Track | Core Architecture | Key Focus Areas |
-| :--- | :--- | :--- |
-| **STM32 F446RE** | **Master Node** (ARM Cortex-M4) | **FreeRTOS** Scheduler, Sensor Fusion, Safety State Machine, **CAN Bus Master**. |
-| **ESP32-S2** | **Industrial Node** (Xtensa LX7) | High-Voltage Relay Control, Environmental Sensing, **CAN Bus Slave**, Failsafe Logic. |
-| **ESP32 Pico** | **Gateway Node** (Xtensa LX6) | **HMI Display** (SPI), BLE Mobile Link, Cloud Telemetry (MQTT/AWS IoT). |
-| **ESP32-CAM** | **Vision Node** (Xtensa LX6) | Edge AI (Face Detection), Asynchronous Event Generation via UART. |
-
----
-
-## 🏗️ System Topology
-
-The system uses a **Star Network** to optimize for latency and reliability:
-
-```mermaid
-graph TD
-    STM32[Master: STM32F446RE] -->|CAN Bus 500kbps| S2[Industrial: ESP32-S2]
-    STM32 -->|SPI 4MHz| PICO[Gateway: ESP32 Pico]
-    STM32 -->|UART 115200| CAM[Vision: ESP32-CAM]
-    S2 -->|AC Power| RELAYS[Relay Bank]
-    PICO -->|I2C| OLED[Status Display]
-    PICO -->|WiFi/MQTT| CLOUD[ThingSpeak Dashboard]
-```
-
-## 🛠 Development Environment
-
-| Platform | IDE/SDK | OS |
-| :--- | :--- | :--- |
-| **STM32** | STM32CubeIDE 1.18.0 | Ubuntu 24.04 |
-| **ESP32** | ESP-IDF v5.5 | Ubuntu 24.04 |
-
----
-
-## 🧭 Repository Overview
-
-```
-
-Home_Automation/
-└── .vscode/                   # Editor configuration
-├── docs/                      # Engineering Specifications
-│   ├── FRS.md                 # Functional Requirements
-│   └── High-Level-Design.md   # High-Level-Design docs
-│   └── Low-Level-Design.md    # Low-Level-Design docs
-│
-├── firmware/                  # Source Code Monorepo
-│   ├── common/                # Shared Headers (CAN IDs, Structs)
-│   ├── stm32-master/          # STM32CubeIDE Project
-│   ├── esp32-s2-industrial/   # ESP-IDF Project (Relays/CAN)
-│   └── esp32-pico-gateway/    # ESP-IDF Project (Display/MQTT)
-│
-├── .gitignore                 # gitignore
-├── LICENSE
-└── README.md                  # You are here
-
-```
-
-## 🤝 Connect With Me
-
-- **LinkedIn:** [linkedin.com/in/rahul-bari-embeddeddeveloper](https://linkedin.com/in/rahul-bari-embeddeddeveloper)
-- **GitHub:** [@rahulbari717](https://github.com/rahulbari717)
-- **Email:** rahulbari717@gmail.com
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## ⭐ Support
-
-If you find this repository helpful:
-- ⭐ Star this repo
-- 🔀 Fork and contribute
-- 📢 Share with fellow embedded enthusiasts
-- 💬 Open issues for discussions
-
----
-
-**Happy Embedded Programming! 🚀**
-
-*Last Updated: Jan 2026*
-
-
-
-# Secure Smart Home Hub - STM32F446RE
 
 ## 📋 Project Overview
 
-A sophisticated 3-level hierarchical menu system for a smart home control hub using STM32F446RE microcontroller with:
-- 4x4 Matrix Keypad for input
-- 16x2 LCD display (no I2C, 4-bit mode)
-- Multi-user authentication with PIN-based security
-- Room-based access control
-- Deep sleep power saving mode
+This project implements a complete home automation controller using **STM32F446RE Nucleo-64** microcontroller. The system features a hierarchical finite state machine (FSM) for secure access control, real-time sensor monitoring, and automated device management—all without HAL or RTOS dependencies, using pure register-level drivers for maximum efficiency.
 
-## 🔧 Hardware Requirements
+### Key Highlights
+- ✅ **Bare-metal architecture** - Direct register access for all peripherals
+- ✅ **Security-first design** - PIN authentication with lockout protection
+- ✅ **State machine based** - Clean, maintainable FSM architecture
+- ✅ **Dual display system** - OLED for status, LCD for interaction
+- ✅ **Multi-sensor fusion** - Light, temperature, motion, proximity sensing
+- ✅ **Automated control** - Smart lighting based on ambient conditions
 
-### Components
-- **STM32F446RE Nucleo Board**
-- **4x4 Matrix Keypad**
-- **16x2 LCD Display** (HD44780 compatible, 4-bit mode)
-- **2x LEDs** (Green for success, Red for errors)
-- **Buzzer** (Active or Passive)
-- **Push Button** (for wakeup)
-- **Resistors** and connecting wires
+---
 
-### Pin Connections
+## 🎯 System Architecture
 
-#### Keypad (4x4 Matrix)
-| Keypad Pin | STM32 Pin | Description |
-|------------|-----------|-------------|
-| R0         | PB0       | Row 0 (Output) |
-| R1         | PB1       | Row 1 (Output) |
-| R2         | PB2       | Row 2 (Output) |
-| R3         | PB3       | Row 3 (Output) |
-| C0         | PB4       | Column 0 (Input with Pull-up) |
-| C1         | PB5       | Column 1 (Input with Pull-up) |
-| C2         | PB6       | Column 2 (Input with Pull-up) |
-| C3         | PB7       | Column 3 (Input with Pull-up) |
-
-#### 📟 LCD 16×2 (JHD162A) → STM32 Connection Table(4-bit Mode)
-| LCD Pin | STM32 Pin | Description |
-|---------|-----------|-------------|
-| RS      | PC0       | Register Select |
-| EN      | PC1       | Enable |
-| D4      | PC2       | Data bit 4 |
-| D5      | PC3       | Data bit 5 |
-| D6      | PC4       | Data bit 6 |
-| D7      | PC5       | Data bit 7 |
-| VSS     | GND       | Ground |
-| VDD     | +5V       | Power |
-| V0      | Pot       | Contrast (10k potentiometer) |
-| RW      | GND       | Read/Write (tied to GND for Write mode) |
-| A (LED+)| +5V       | Backlight positive (through 220Ω resistor) |
-| K (LED-)| GND       | Backlight negative |
- |
-#### 📟 LCD 16×2 (JHD162A) → STM32 Complete Pin-by-Pin Wiring (4-bit Mode)
-
-#### 🔗 Complete Pin-by-Pin Wiring (1 → 16)
-
-| LCD Pin No. | LCD Pin Name | STM32 / Connection | Notes |
-|:-----------:|:------------:|:-------------------|:------|
-| 1  | VSS      | GND                | Ground |
-| 2  | VDD      | +5V                | LCD Power |
-| 3  | V0       | GND                | Maximum contrast (no potentiometer) |
-| 4  | RS       | PC0                | Register Select |
-| 5  | RW       | GND                | Write-only mode |
-| 6  | EN       | PC1                | Enable pulse |
-| 7  | D0       | Not connected      | Unused (4-bit mode) |
-| 8  | D1       | Not connected      | Unused |
-| 9  | D2       | Not connected      | Unused |
-| 10 | D3       | Not connected      | Unused |
-| 11 | D4       | PC2                | Data bit 4 |
-| 12 | D5       | PC3                | Data bit 5 |
-| 13 | D6       | PC4                | Data bit 6 |
-| 14 | D7       | PC5                | Data bit 7 |
-| 15 | A (LED+) | +5V via 220Ω       | Backlight Anode |
-| 16 | K (LED-) | GND                | Backlight Cathode |
-
-
-#### LEDs and Buzzer
-| Component | STM32 Pin | Description |
-|-----------|-----------|-------------|
-| Green LED | PA5       | Success indicator (through 330Ω resistor) |
-| Red LED   | PA6       | Error indicator (through 330Ω resistor) |
-| Buzzer    | PA7       | Audio feedback |
-
-#### Wakeup Button
-| Component | STM32 Pin | Description |
-|-----------|-----------|-------------|
-| Button    | PC13      | Wakeup from sleep (with external pull-up) |
-
-#### Room Control Outputs (Port D)
-| Device           | Pin  | Description |
-|------------------|------|-------------|
-| Hall Light       | PD0  | Relay control |
-| Hall Fan         | PD1  | Relay control |
-| Hall TV          | PD2  | Relay control |
-| Kitchen Light    | PD3  | Relay control |
-| Kitchen Exhaust  | PD4  | Relay control |
-| Kitchen Coffee   | PD5  | Relay control |
-| MBed Lamp        | PD6  | PWM capable (dimmer) |
-| MBed AC          | PD7  | Relay control |
-| MBed Fan         | PD8  | Speed control |
-| GBed Lamp        | PD9  | PWM capable (dimmer) |
-| GBed AC          | PD10 | Relay control |
-| GBed Fan         | PD11 | Speed control |
-| Garden Sprinkler | PD12 | Relay control |
-| Garden Light     | PD13 | Relay control |
-| Garden Fountain  | PD14 | Relay control |
-
-## 📁 Project Structure
+### State Machine Flow
 
 ```
-SmartHomeHub/
-├── Inc/
-│   ├── stm32f446xx.h           (Your existing MCU header)
-│   ├── stm32f446xx_gpio_driver.h
-│   ├── config.h                (System configuration)
-│   ├── lcd.h                   (LCD driver)
-│   ├── keypad.h                (Keypad driver)
-│   ├── menu.h                  (Menu system)
-│   ├── user_auth.h             (Authentication)
-│   └── room_control.h          (Device control)
-├── Src/
-│   ├── main.c                  (Main application)
-│   ├── stm32f446xx_gpio_driver.c
-│   ├── lcd.c
-│   ├── keypad.c
-│   ├── menu.c (Part 1 & 2)
-│   ├── user_auth.c
-│   └── room_control.c
-└── Startup/
-    └── startup_stm32f446xx.s
+┌─────────────────┐
+│    STANDBY      │◄────────────────┐
+│  (Sleep Mode)   │                 │
+└────────┬────────┘                 │
+         │                          │
+         │ Motion/Keypress          │ Timeout/Logout
+         ▼                          │
+┌─────────────────┐                 │
+│ AUTHENTICATING  │────────────────►┤
+│  (PIN Entry)    │    Invalid      │
+└────────┬────────┘                 │
+         │                          │
+         │ Valid PIN                │
+         ▼                          │
+┌─────────────────┐                 │
+│  ACTIVE_MENU    │◄───────┐        │
+│ (Main Control)  │        │        │
+└────────┬────────┘        │        │
+         │                 │        │
+         ├──► Sensor Monitor ───────┤
+         ├──► Device Control ───────┤
+         └──► Settings ─────────────┘
 ```
 
-## 🚀 Getting Started
+### State Definitions
 
-### 1. Build Configuration
-- **IDE**: STM32CubeIDE or Keil MDK
-- **Toolchain**: ARM GCC
-- **Optimization**: -O0 (for debugging) or -O2 (for production)
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|----------------|----------------|
+| **STANDBY** | Low-power waiting mode | System boot / Logout | Motion detected / Key pressed |
+| **AUTHENTICATING** | PIN verification | User trigger from STANDBY | Valid PIN / 3 failed attempts |
+| **ACTIVE_MENU** | Main menu navigation | Successful authentication | User logout / Timeout |
+| **SENSOR_MONITOR** | Live sensor data display | Selected from menu | Back button / Timeout |
+| **CONTROL_DEVICES** | Device control interface | Selected from menu | Back button / Timeout |
+| **SETTINGS** | Configuration menu | Selected from menu | Back button / Timeout |
+| **LOCKOUT** | Security lockout (5 sec) | 3 failed login attempts | Timer expires |
 
-### 2. Default Credentials
+
+### Input Devices
+| Component | Interface | Pins | Purpose |
+|-----------|-----------|------|---------|
+| 4x4 Matrix Keypad | GPIO | PB0-PB7 | User input & navigation |
+| User Button | GPIO + EXTI | PC13 | System wakeup |
+| LDR Sensors (×2) | ADC | PA0, PA1 | Ambient light sensing |
+| IR Proximity (×1) | GPIO | PC6 | Obstacle detection |
+
+### Output Devices
+| Component | Interface | Pins | Purpose |
+|-----------|-----------|------|---------|
+| LCD 16x2 | GPIO (4-bit) | PC0-PC5 | Interactive display |
+| OLED 128x64 | I2C | PB8, PB9 | Status display |
+| LEDs (×3) | GPIO | PA5-PA7 | Visual indicators |
+| Relays (×4) | GPIO | PB12-PB15 | High-power device control |
+| Buzzer | GPIO | PA4 | Audio feedback |
+
+### Communication
+| Interface | Pins | Purpose |
+|-----------|------|---------|
+| USART2 | PA2, PA3 | Debug console (115200 baud) |
+
+---
+
+
+## 📊 Complete Pin Mapping
+
+### PORT A (Sensors & Communication)
 ```
-Username: Admin
-PIN: 1234
+PA0  → LDR1 (ADC1_CH0)           - Light sensor 1
+PA1  → LDR2 (ADC1_CH1)           - Light sensor 2
+PA2  → USART2_TX                 - Debug console output
+PA3  → USART2_RX                 - Debug console input
+PA4  → Buzzer                    - Audio feedback
+PA5  → LED Green                 - Success indicator
+PA6  → LED Red                   - Error/warning indicator
+PA7  → LED White                 - Status/ambient light
+
 ```
 
-### 3. Keypad Layout
+### PORT B (Keypad, I2C, Relays)
+```
+PB0  → Keypad Row 0              - Scan line (Output)
+PB1  → Keypad Row 1              - Scan line (Output)
+PB2  → Keypad Row 2              - Scan line (Output)
+PB3  → Keypad Row 3              - Scan line (Output)
+PB4  → Keypad Col 0              - Read line (Input + Pull-up)
+PB5  → Keypad Col 1              - Read line (Input + Pull-up)
+PB6  → Keypad Col 2              - Read line (Input + Pull-up)
+PB7  → Keypad Col 3              - Read line (Input + Pull-up)
+PB8  → I2C1_SCL                  - OLED clock
+PB9  → I2C1_SDA                  - OLED data
+PB12 → Relay 1                   - Living room light
+PB13 → Relay 2                   - Kitchen exhaust
+PB14 → Relay 3                   - Bedroom AC
+PB15 → Relay 4                   - Garden sprinkler
+```
+
+### PORT C (LCD & Sensors)
+```
+PC0  → LCD RS                    - Register select
+PC1  → LCD EN                    - Enable pulse
+PC2  → LCD D4                    - Data bit 4
+PC3  → LCD D5                    - Data bit 5
+PC4  → LCD D6                    - Data bit 6
+PC5  → LCD D7                    - Data bit 7
+PC6  → IR Sensor 1               - Obstacle detection
+PC13 → Wakeup Button             - System wakeup (EXTI)
+```
+
+---
+
+## 🗂️ Project Structure
+
+```
+Home_Automation/
+├── docs/                           # Documentation
+│   ├── FRS.md                      # Functional Requirements Specification
+│   ├── Project_summary.md          # Project overview
+│   ├── State_machine_plan.md       # State machine design
+│   ├── roadmap_plan.md             # Development roadmap
+│   ├── test_cases.md               # Test plan & validation
+│   ├── Quick_ref.md                # Quick reference guide
+│   └── stm32f446re.jpg             # Pinout reference image
+│
+├── Home_Automation_stm32_drivers/  # Main firmware directory
+│   ├── Application/                # Example/test programs
+│   │   ├── Inc/
+│   │   │   └── main.h
+│   │   └── Src/
+│   │       ├── 001_LedToggle.c     # Basic GPIO examples
+│   │       ├── 005_UART_TX.c       # Communication examples
+│   │       ├── 020_oled_i2c.c      # Display examples
+│   │       └── ... (29 examples total)
+│   │
+│   ├── BSP/                        # Board Support Package
+│   │   ├── Inc/
+│   │   │   ├── bsp_init.h          # System initialization
+│   │   │   ├── bsp_led.h           # LED control
+│   │   │   ├── bsp_button.h        # Button handling
+│   │   │   ├── bsp_buzzer.h        # Buzzer control
+│   │   │   ├── bsp_relay.h         # Relay control
+│   │   │   ├── bsp_keypad.h        # Keypad scanning
+│   │   │   ├── bsp_lcd.h           # LCD driver (4-bit mode)
+│   │   │   ├── bsp_i2c_oled.h      # OLED driver (I2C)
+│   │   │   ├── bsp_sensors.h       # Sensor interfaces
+│   │   │   ├── bsp_ldr.h           # LDR sensor
+│   │   │   ├── bsp_ds18b20.h       # Temperature sensor
+│   │   │   ├── bsp_uart2_debug.h   # Debug UART
+│   │   │   ├── bsp_delay.h         # Timing utilities
+│   │   │   └── config.h            # Hardware configuration
+│   │   └── Src/
+│   │       └── ... (BSP implementations)
+│   │
+│   ├── Drivers/                    # MCU Peripheral Drivers
+│   │   ├── Inc/
+│   │   │   ├── stm32f446xx.h       # MCU register definitions
+│   │   │   ├── stm32f446xx_gpio_driver.h
+│   │   │   ├── stm32f446xx_usart_driver.h
+│   │   │   ├── stm32f446xx_i2c_driver.h
+│   │   │   ├── stm32f446xx_adc_driver.h
+│   │   │   ├── stm32f446xx_timer_driver.h
+│   │   │   ├── stm32f446xx_dma_driver.h
+│   │   │   ├── stm32f446xx_rtc_driver.h
+│   │   │   ├── stm32f446xx_iwdg_driver.h
+│   │   │   ├── stm32f446xx_rcc_driver.h
+│   │   │   └── stm32f446xx_fault_handler.h
+│   │   └── Src/
+│   │       └── ... (Driver implementations)
+│   │
+│   ├── Inc/                        # Application headers
+│   │   └── state_machine.h         # State machine declarations
+│   │
+│   ├── Src/                        # Application source
+│   │   ├── main.c                  # Application entry point
+│   │   ├── state_machine.c         # FSM core logic
+│   │   ├── state_handlers.c        # State handler functions
+│   │   ├── auth_menu.c             # Authentication & menus
+│   │   ├── sensors.c               # Sensor management
+│   │   ├── devices.c               # Device control
+│   │   ├── display.c               # Display updates
+│   │   ├── peripheral_test.c       # Hardware tests
+│   │   ├── stm32f446xx_it.c        # Interrupt handlers
+│   │   ├── syscalls.c              # System calls
+│   │   └── sysmem.c                # Memory management
+│   │
+│   ├── Startup/
+│   │   └── startup_stm32f446retx.s # Startup code
+│   │
+│   ├── STM32F446RETX_FLASH.ld      # Linker script (Flash)
+│   └── STM32F446RETX_RAM.ld        # Linker script (RAM)
+│
+├── .gitignore                      # Git ignore rules
+├── LICENSE                         # MIT License
+└── README.md                       # This file
+```
+
+
+
+---
+
+## ⚙️ Key Features
+
+### 1. 🔐 Security & Authentication
+- **PIN-based Access Control**
+  - 4-digit PIN entry via keypad
+  - Multiple user support (5 default users)
+  - Master PIN override capability
+- **Lockout Protection**
+  - 3 failed attempts → 10-second security lockout
+  - Buzzer alarm during lockout
+  - Automatic return to standby after lockout
+- **Session Management**
+  - 30-second inactivity timeout
+  - Secure logout with device shutdown
+  - State persistence during session
+
+### 2. 📊 Sensor Monitoring
+- **Light Sensing (LDR)**
+  - Dual LDR sensors (0-4095 ADC range)
+  - Ambient light percentage calculation
+  - Auto-lighting trigger threshold: 200 (darkness)
+- **Proximity Detection**
+  - IR sensor
+  - Obstacle detection
+  - Event logging via UART
+
+### 3. 🎛️ Device Control
+- **Manual Control Mode**
+  - LED indicators (Green/Red/White)
+  - 4-channel relay bank
+  - Individual device toggle via menu
+- **LDR Auto Mode**
+  - Automatic lighting based on ambient light
+  - LDR1 > 4000 → Relay1 ON
+  - LDR2 > 4000 → Relay2 ON 
+  - Enable/disable via control menu
+- **Buzzer Patterns**
+  - Success beep (short)
+  - Error beep (toggle)
+
+### 4. 📺 Display System
+- **OLED (Status Display)**
+  ```
+  STATE: ACTIVE_MENU
+  User: Rahul
+  Motion: None
+  ```
+  - Shows current system state
+  - Active user name
+  - Motion sensor status
+  - Updates every 1 second
+
+- **LCD (Interactive Display)**
+  - **Standby Mode:**
+    ```
+    System Ready
+    Press Any Key
+    ```
+  - **Authentication:**
+    ```
+    Enter PIN:
+    ****_
+    ```
+  - **Main Menu:**
+    ```
+    >1.Sensor Monitor
+     2.Device Control
+    ```
+  - **Sensor Screens (Auto-cycling every 2s):**
+    ```
+    LDR1: 450 (45%)
+    LDR2: 320 (32%)
+    
+    Motion: YES
+    IR1:Y  
+    ```
+  - **Device Control:**
+    ```
+    >LED Green: ON
+     LED Red: OFF
+    ```
+
+### 5. 🎮 Keypad Navigation
+
+**Keypad Layout:**
 ```
 ┌───┬───┬───┬───┐
 │ 1 │ 2 │ 3 │ A │
@@ -257,598 +323,310 @@ PIN: 1234
 ```
 
 **Navigation Keys:**
-- `2` = UP
-- `8` = DOWN
-- `5` = ENTER
-- `*` = BACK
-- `#` = LOGOUT
+- `2` → UP (Navigate up / Previous screen)
+- `8` → DOWN (Navigate down / Next screen)
+- `5` → ENTER (Select / Toggle device)
+- `*` → BACK (Return to previous menu)
+- `#` → LOGOUT (Return to standby & lock system)
 
-## 🔐 System States
-
-### 1. Deep Sleep Mode
-- All peripherals OFF
-- Red LED blinks every 5 seconds
-- Press wakeup button (PC13) to wake
-
-### 2. Authentication Mode
-- Enter 4-digit PIN
-- 3 attempts allowed
-- Green LED + beep on success
-- Red LED + beep on failure
-- Lockout after 3 failed attempts
-
-### 3. Menu Navigation Mode
-- Browse and control rooms
-- Check permissions
-- Manage users (admin only)
-
-### 4. Lockout Mode
-- 20-second lockout
-- Alternating buzzer and red LED
-- Automatic return to deep sleep
-
-## 📱 Menu Hierarchy
-
+### 6. 🔍 UART Monitoring
+Complete system diagnostics via USART2 (115200 baud):
 ```
-MAIN MENU
-├── 1. Help & Info
-│   ├── About Device
-│   ├── Uptime Stats
-│   └── Error Logs
-│
-├── 2. Room Control
-│   ├── Hall
-│   │   ├── Main Light (ON/OFF)
-│   │   ├── Ceiling Fan (ON/OFF, Speed 1-4)
-│   │   └── TV System (ON/OFF)
-│   │
-│   ├── Kitchen
-│   │   ├── Ceiling Light (ON/OFF)
-│   │   ├── Exhaust Fan (ON/OFF)
-│   │   └── Coffee Maker (ON/OFF)
-│   │
-│   ├── Master Bedroom
-│   │   ├── Night Lamp (Dimmer 10-100%)
-│   │   ├── AC Control (16-30°C)
-│   │   ├── Blinds (Open/Close)
-│   │   └── Ceiling Fan (Speed 0-4)
-│   │
-│   ├── Guest Bedroom
-│   │   ├── Night Lamp (Dimmer 10-100%)
-│   │   ├── AC Control (16-30°C)
-│   │   ├── Blinds (Open/Close)
-│   │   └── Ceiling Fan (Speed 0-4)
-│   │
-│   └── Garden
-│       ├── Sprinkler (ON/OFF)
-│       ├── Porch Light (ON/OFF)
-│       └── Fountain (ON/OFF)
-│
-└── 3. User Admin (Admin Only)
-    ├── Register User
-    ├── Delete User
-    ├── List Users
-    ├── Change Admin PIN
-    └── Factory Reset
+[STATE] STANDBY → AUTHENTICATING
+[AUTH] User 'Rahul' login attempt
+[AUTH] PIN verified - Access granted
+[STATE] AUTHENTICATING → ACTIVE_MENU
+[SENSOR] LDR1:450, LDR2:320
+[DEVICE] LED_GREEN toggled ON
+[CONTROL] Relay1 activated
 ```
 
-## 👥 User Management
+---
 
-### User Types
-1. **Super User (Admin)**
-   - Full access to all rooms
-   - Can create/delete users
-   - Can assign room permissions
-   - Can perform factory reset
+## 🚀 Getting Started
 
-2. **Normal User**
-   - Access only to assigned rooms
-   - Cannot manage other users
+### Prerequisites
 
-### Room Permissions (Bit Flags)
-```c
-ROOM_HALL         = 0x01
-ROOM_KITCHEN      = 0x02
-ROOM_MASTER_BED   = 0x04
-ROOM_GUEST_BED    = 0x08
-ROOM_STORE        = 0x10
-ROOM_GARDEN       = 0x20
-ROOM_STUDY        = 0x40
-ROOM_PUJA         = 0x80
-ROOM_ALL          = 0xFF
+**Hardware:**
+- STM32F446RE Nucleo-64 board
+- USB cable (for programming & debug UART)
+- All components listed in hardware section
+- Breadboard and jumper wires
+- Power supply (5V for relays, 3.3V/5V for sensors)
+
+**Software:**
+- **STM32CubeIDE 1.18.0** or later
+- **ARM GCC Toolchain** (bundled with CubeIDE)
+- **OpenOCD** or **ST-Link Utilities** (for flashing)
+- Serial terminal (PuTTY, Tera Term, or screen)
+
+### Installation Steps
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/rahulbari717/Home_Automation.git
+   cd Home_Automation
+   ```
+
+2. **Open in STM32CubeIDE**
+   - File → Open Projects from File System
+   - Select `Home_Automation_stm32_drivers` folder
+   - Click Finish
+
+3. **Configure Build**
+   - Right-click project → Properties
+   - C/C++ Build → Settings
+   - Verify optimization level:
+     - Debug: `-O0` (no optimization)
+     - Release: `-O2` (size optimization)
+
+4. **Build Project**
+   ```
+   Project → Build Project (Ctrl+B)
+   ```
+
+5. **Flash to Board**
+   ```
+   Run → Debug (F11)
+   ```
+   Or using command line:
+   ```bash
+   openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
+           -c "program build/Home_Automation.elf verify reset exit"
+   ```
+
+6. **Open Serial Monitor**
+   ```bash
+   # Linux
+   minicom -D /dev/ttyACM0 -b 115200
+
+   
+   # Windows (PuTTY)
+   COM Port: COMx (check Device Manager)
+   Baud: 115200
+   ```
+
+---
+
+## 📖 Usage Guide
+
+### System Startup Sequence
+```
+[Power ON]
+    ↓
+[Initialize Peripherals]
+    ↓
+[Display Welcome Messages]
+  OLED: "System Booting"
+  LCD:  "Please Wait..."
+    ↓
+[White LED ON (Dim)]
+    ↓
+[Enter STANDBY Mode]
+  OLED: "STATE: STANDBY"
+  LCD:  "System Ready / Press Any Key"
+    ↓
+[System Ready - Waiting for trigger]
 ```
 
-## 🎮 Usage Examples
-
-### Turning On Hall Light
-1. Wake system (press button)
-2. Enter PIN: `1234#`
-3. Navigate: `2` (down) to "Room Control"
-4. Press `5` (enter)
-5. Select "Hall" (already selected)
-6. Press `5` (enter)
-7. Select "Main Light"
-8. Press `5` (toggle ON)
-
-### Setting AC Temperature
-1. Navigate to Master Bedroom → AC Control
-2. Press `5` (enter)
-3. Use `2` to increase temperature
-4. Use `8` to decrease temperature
-5. Press `5` to toggle AC ON/OFF
-6. Press `#` to save and exit
-
-### Registering New User (Admin)
-1. Navigate to User Admin → Register User
-2. Enter username via keypad
-3. Enter 4-digit PIN
-4. Select admin status (5=Yes, *=No)
-5. Assign room permissions
-
-## 🐛 Troubleshooting
-
-### LCD Shows Nothing
-- Check contrast potentiometer
-- Verify power connections (VSS, VDD)
-- Verify pin connections (RS, EN, D4-D7)
-
-### Keypad Not Responding
-- Check row/column connections
-- Verify pull-up resistors on columns
-- Test individual keys with multimeter
-
-### Authentication Always Fails
-- Default PIN is `1234`
-- Try factory reset (menu option)
-- Check keypad number mapping
-
-### System Won't Wake Up
-- Check PC13 button connection
-- Verify external pull-up resistor
-- Check interrupt configuration
-
-## 🔧 Customization
-
-### Adding New Rooms
-1. Define new pin in `config.h`
-2. Add device to `DeviceID_t` enum in `room_control.h`
-3. Add pin mapping in `room_control.c`
-4. Create menu node in `menu.c`
-5. Link to room control menu
-
-### Changing PIN Length
-Edit `config.h`:
-```c
-#define PIN_LENGTH  6  // Change from 4 to 6 digits
+### Authentication Flow
+```
+[STANDBY] → Motion detected OR Key pressed
+          → [AUTHENTICATING]
+          → LCD shows: "Enter PIN: ____"
+          → User enters 4-digit PIN
+          → System verifies PIN against database
+          
+          ✓ Valid PIN:
+            → Green LED ON + Success beep
+            → [ACTIVE_MENU]
+            → OLED shows username
+            
+          ✗ Invalid PIN:
+            → Red LED ON + Error beep
+            → Retry (max 3 attempts)
+            → After 3 fails → [LOCKOUT] for 5 seconds
 ```
 
-### Adjusting Timeout
-Edit `config.h`:
-```c
-#define LOCKOUT_TIME_SEC  30  // Change from 20 to 30 seconds
+### Main Menu Navigation
+```
+ACTIVE_MENU:
+┌────────────────────────┐
+│ >1. Sensor Monitor     │  ← Current selection
+│  2. Device Control     │
+│  3. Settings           │
+│  4. Logout             │
+└────────────────────────┘
+
+Actions:
+- Press '2' to move down
+- Press '8' to move up  
+- Press '5' to select
+- Press '*' to back
+- Press '#' to logout
 ```
 
-## 📊 Memory Usage (Approximate)
-- **Flash**: ~25 KB
-- **RAM**: ~2 KB
-- **Stack**: 1 KB (configurable)
+### Sensor Monitoring (Auto-Cycle Screens)
+```
+Screen 1 (2 seconds):
+┌────────────────────────┐
+│ LDR1: 450 (45%)        │
+│ LDR2: 320 (32%)        │
+└────────────────────────┘
 
-## 🔒 Security Features
-- PIN-based authentication
-- 3-attempt lockout mechanism
-- Role-based access control
-- Room-level permissions
-- Secure logout with device shutdown
 
-## 📝 License
-This project is provided as-is for educational purposes.
+Screen 3 (2 seconds):
+┌────────────────────────┐
+│ Motion: YES            │
+│ IR1: Y                 │
+└────────────────────────┘
+
+(Cycles automatically, press '#' to exit)
+```
+
+### Device Control
+```
+┌────────────────────────┐
+│ >LED Green: ON         │  ← Toggle with '5'
+│  LED Red: OFF          │
+│  LED White: OFF        │
+│  Relay1: OFF           │
+│  Relay2: OFF           │
+│  LDR Auto: OFF         │
+└────────────────────────┘
+
+Actions:
+- Navigate with '2'/'8'
+- Toggle with '5' (instant beep feedback)
+- Each action logged to UART
+```
+
+### LDR Auto Mode
+```
+When LDR Auto Mode is ENABLED:
+
+1. System continuously reads LDR sensors
+
+2. If LDR1 > 4000 (darkness):
+   → Relay1 ON (room light)
+
+   → UART log: "[AUTO] LDR1 dark - Lights ON"
+
+3. If LDR1 > 4000 (darkness):
+   → Relay2 ON (room light)
+   → UART log: "[AUTO] LDR2 dark - Lights ON"
+
+4. If light returns (LDR > 200):
+   → LEDs/Relays OFF
+   → UART log: "[AUTO] Light detected - Lights OFF"
+```
+
+---
+
+## 👥 Default User Database
+
+| Username | PIN  | Access Level |
+|----------|------|--------------|
+| Rahul    | 1234 | Full access  |
+| Admin    | 0000 | Administrator|
+| User1    | 1111 | Standard     |
+| User2    | 2222 | Standard     |
+| Guest    | 9999 | Limited      |
+
+
+---
+
+For detailed roadmap, see [`docs/roadmap_plan.md`](docs/roadmap_plan.md).
+
+---
+
+## 📚 Documentation
+
+- **[Functional Requirements Specification (FRS)](docs/FRS.md)** - Complete system requirements
+- **[Project Summary](docs/Project_summary.md)** - High-level overview
+- **[State Machine Plan](docs/State_machine_plan.md)** - FSM design document
+- **[Test Cases](docs/test_cases.md)** - Validation test plan
+- **[Quick Reference](docs/Quick_ref.md)** - Pin mapping & command reference
+- **[Roadmap](docs/roadmap_plan.md)** - Development timeline
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📊 Project Status
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **STM32 Core** | ✅ Complete | Bare-metal FSM working |
+| **Authentication** | ✅ Complete | PIN system with lockout |
+| **Sensors** | ✅ Partial | LDR + IR working |
+| **Displays** | ✅ Complete | OLED + LCD working |
+| **Control** | ✅ Complete | LEDs + Relays working |
+| **Self-Test** | ✅ Complete | Boot diagnostics working |
+| **ESP32 Gateway** | 🚧 Planned | Q2 2026 |
+| **BLE/WiFi** | 🚧 Planned | Q2 2026 |
+| **MQTT Cloud** | 🚧 Planned | Q3 2026 |
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2026 Rahul Bari
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+[Full license text in LICENSE file]
+```
+
+---
 
 ## 👨‍💻 Author
-**Rahul B.**
-- Date: January 12, 2026
-- Version: 1.0.0
 
-## 🙏 Acknowledgments
-- STM32 HAL Library
-- HD44780 LCD datasheet
-- Matrix keypad scanning algorithms
+**Rahul Bari**  
+Embedded Systems Developer
 
-Advanced Features:
+- 🌐 **LinkedIn:** [rahul-bari-embeddeddeveloper](https://linkedin.com/in/rahul-bari-embeddeddeveloper)
+- 💻 **GitHub:** [@rahulbari717](https://github.com/rahulbari717)
+- 📧 **Email:** rahulbari717@gmail.com
 
-✅ 3-level deep menu hierarchy using tree structure
-✅ PIN-based authentication (4 digits)
-✅ 3-strike lockout system
-✅ Room-based permission control
-✅ Super user vs. normal user roles
-✅ Deep sleep mode with wakeup interrupt
-✅ Visual (LED) and audio (buzzer) feedback
+---
 
+## ⭐ Support This Project
 
-Here's a quick one-line explanation for each major peripheral:
+If you find this project helpful:
 
-**Core & Memory:**
-- **Flash** - Stores program code and constant data permanently
-- **SRAM** - Fast temporary memory for variables and stack during program execution
-- **CRC** - Calculates checksums to verify data integrity
-- **FMC** - Interfaces with external memory chips (SRAM, Flash, SDRAM)
-- **QUADSPI** - High-speed interface for external Flash memory chips
+- ⭐ **Star this repository** on GitHub
+- 🔀 **Fork and contribute** improvements
+- 📢 **Share** with fellow embedded enthusiasts
+- 💬 **Open issues** for bugs or feature requests
+- 📝 **Write about it** - blog posts, tutorials, videos
 
-**Timing & Control:**
-- **RCC** - Manages all system clocks and peripheral resets
-- **PWR** - Controls power modes and voltage regulation
-- **RTC** - Keeps track of time/date with calendar and alarms
-- **IWDG/WWDG** - Watchdog timers that reset the system if software hangs
-- **TIM1-14** - Generate PWM signals, measure timing, count events
+---
 
-**Communication:**
-- **USART/UART** - Serial communication with other devices
-- **SPI** - High-speed synchronous data exchange
-- **I2C/FMPI2C** - Two-wire bus for connecting sensors and peripherals
-- **CAN** - Robust communication for automotive/industrial applications
-- **SDIO** - Interface for SD cards and SDIO devices
-- **USB OTG** - USB host/device connectivity
-- **SAI** - High-quality digital audio interface
-- **SPDIFRX** - Receives digital audio from optical/coaxial sources
-- **HDMI-CEC** - Control commands over HDMI connections
+**Last Updated:** January 30, 2026  
+**Version:** 1.0  
+**Platform:** STM32F446RE Nucleo-64  
+**IDE:** STM32CubeIDE 1.18.0  
+**OS:** Ubuntu 24.04
 
-**Analog:**
-- **ADC** - Converts analog voltages to digital values
-- **DAC** - Converts digital values to analog voltages
+---
 
-**Other:**
-- **GPIO** - General purpose input/output pins for interfacing
-- **DMA** - Moves data between memory and peripherals without CPU
-- **EXTI** - Detects external pin changes and generates interrupts
-- **DCMI** - Captures video/images from camera sensors
-- **DBG** - Debugging and trace support for development
-
-
-
-Here's a simple 2-line explanation for each peripheral:
-Embedded Flash Memory Interface
-
-Stores your program code permanently (even when power is off)
-Allows reading/writing/erasing program memory with access control and protection
-
-CRC Calculation Unit
-
-Quickly calculates checksums to detect data corruption
-Useful for verifying data integrity in communication or storage
-
-Power Controller (PWR)
-
-Manages different power modes (sleep, stop, standby) to save battery
-Controls voltage regulators and monitors power supply
-
-Reset and Clock Control (RCC)
-
-Distributes clock signals to all peripherals (like a master clock)
-Controls which peripherals are turned on/off and handles system resets
-
-System Configuration Controller (SYSCFG)
-
-Remaps memory locations and configures special pin functions
-Routes external interrupts and manages I/O compensation
-
-Direct Memory Access (DMA)
-
-Automatically moves data between memory and peripherals without CPU help
-Frees up the processor to do other tasks while data transfers happen
-
-Interrupts and Events
-
-Allows external signals or internal events to interrupt the CPU
-Makes the system responsive to urgent events (button press, timer overflow, etc.)
-
-Flexible Memory Controller (FMC)
-
-Connects to external memory chips (SRAM, Flash, SDRAM, etc.)
-Expands available memory beyond the internal limits
-
-Quad-SPI Interface (QUADSPI)
-
-Fast interface for external SPI Flash memory (uses 4 data lines)
-Can execute code directly from external Flash (memory-mapped mode)
-
-Analog-to-Digital Converter (ADC)
-
-Converts real-world analog signals (temperature, voltage) into digital numbers
-Lets the microcontroller measure and process analog sensor data
-
-Digital-to-Analog Converter (DAC)
-
-Converts digital numbers into analog voltage output
-Generates analog signals (audio, control voltages, waveforms)
-
-Digital Camera Interface (DCMI)
-
-Captures image/video data from camera sensors
-Handles high-speed parallel data transfer with DMA support
-
-Advanced-Control Timers (TIM1 & TIM8)
-
-Generate precise PWM signals for motor control (with dead-time insertion)
-Advanced features: complementary outputs, brake input, encoder interface
-
-General-Purpose Timers (TIM2-TIM5)
-
-Generate PWM, measure time intervals, count pulses
-Flexible 32-bit timers with input capture and output compare
-
-General-Purpose Timers (TIM9-TIM14)
-
-Simpler 16-bit timers for basic timing and PWM tasks
-Lower resource usage for less demanding applications
-
-Basic Timers (TIM6 & TIM7)
-
-Simple up-counters mainly used to trigger DAC conversions
-Can also generate time-based interrupts
-
-Independent Watchdog (IWDG)
-
-Resets the system if software crashes or hangs
-Runs on independent clock, must be periodically refreshed ("kicked")
-
-Window Watchdog (WWDG)
-
-Similar to IWDG but must be refreshed within a specific time window
-Detects both early and late software malfunctions
-
-Real-Time Clock (RTC)
-
-Keeps accurate time and date (calendar with alarms)
-Runs on low-power backup battery, survives system resets
-
-Fast-Mode Plus I2C (FMPI2C)
-
-Enhanced I2C interface supporting 1 MHz speed
-Modern I2C with improved features (SMBus support, wakeup capability)
-
-Serial Peripheral Interface / I2S (SPI/I2S)
-
-SPI: High-speed synchronous communication (sensors, displays, SD cards)
-I2S: Digital audio interface for audio codecs and devices
-
-SPDIF Receiver (SPDIFRX)
-
-Receives digital audio from optical or coaxial cables
-Decodes professional audio streams (like from CD players, receivers)
-
-Serial Audio Interface (SAI)
-
-High-quality multi-channel digital audio (I2S, AC'97, SPDIF output)
-Professional audio applications with flexible configurations
-
-Secure Digital I/O (SDIO)
-
-Interface for SD/MMC memory cards
-Also supports SDIO devices (WiFi modules, etc.)
-
-Controller Area Network (bxCAN)
-
-Robust communication bus for automotive/industrial environments
-Handles noisy environments with error detection and message filtering
-
-USB On-The-Go (OTG_FS/HS)
-
-Full USB host or device functionality (can be both)
-Supports full-speed (12 Mbps) and high-speed (480 Mbps) modes
-
-HDMI-CEC Controller
-
-Sends control commands over HDMI cable (one remote for all devices)
-Allows device communication in home entertainment systems
-
-Debug Support (DBG)
-
-Programming and debugging interface (JTAG/SWD)
-Allows breakpoints, memory inspection, and code tracing during development
-
-Device Electronic Signature
-
-Unique ID for each chip and device information (memory size, package type)
-Used for product identification and security features
-
-
-1. Core & Memory
-These drivers handle the internal storage and memory interfaces.
-
-Flash: stm32f4xx_flash.c / .h
-
-Functions: Unlock Flash, Erase Sectors, Program Addresses.
-
-SRAM: (Usually handled inside FMC)
-
-Note: Internal SRAM is ready at startup; you rarely write a driver for it.
-
-CRC: stm32f4xx_crc.c / .h
-
-Functions: CRC_ResetDR(), CRC_CalcCRC().
-
-FMC: stm32f4xx_fmc.c / .h
-
-Functions: Configures timing for external RAM/NorFlash.
-
-QUADSPI: stm32f4xx_qspi.c / .h
-
-Functions: Init QSPI, Command transmission (Write/Read).
-
-2. Timing & Control
-This is the heartbeat of your system.
-
-RCC: stm32f4xx_rcc.c / .h (Most Important)
-
-Functions: RCC_OscConfig, RCC_PeriphClockCmd (Enable clocks for GPIO, UART, etc.).
-
-PWR: stm32f4xx_pwr.c / .h
-
-Functions: PWR_EnterSleepMode, PWR_RegulatorConfig.
-
-RTC: stm32f4xx_rtc.c / .h
-
-Functions: RTC_SetTime, RTC_SetDate, RTC_SetAlarm.
-
-IWDG/WWDG: stm32f4xx_iwdg.c, stm32f4xx_wwdg.c
-
-Functions: IWDG_ReloadCounter, WWDG_SetWindowValue.
-
-TIM: stm32f4xx_tim.c / .h
-
-Functions: TIM_TimeBaseInit, TIM_OC1Init (PWM), TIM_ICInit (Input Capture).
-
-3. Communication
-These files implement the protocols to talk to the outside world.
-
-USART/UART: stm32f4xx_usart.c / .h
-
-Functions: USART_SendData, USART_ReceiveData, USART_Init.
-
-SPI: stm32f4xx_spi.c / .h
-
-Functions: SPI_Init, SPI_I2S_SendData, SPI_I2S_ReceiveData.
-
-I2C: stm32f4xx_i2c.c / .h
-
-Functions: I2C_GenerateSTART, I2C_Send7bitAddress.
-
-CAN: stm32f4xx_can.c / .h
-
-Functions: CAN_Init, CAN_Transmit.
-
-SDIO: stm32f4xx_sdio.c / .h
-
-Functions: SDIO_Init, SDIO_SendCommand (Often used with a middleware layer like FATFS).
-
-USB OTG: stm32f4xx_usbd.c (Device) / stm32f4xx_usbh.c (Host)
-
-Note: USB is complex. The LL driver handles the hardware endpoints (PCD/HCD), but you almost always need a Middleware stack on top of this.
-
-SAI: stm32f4xx_sai.c / .h
-
-SPDIFRX: stm32f4xx_spdifrx.c / .h
-
-HDMI-CEC: stm32f4xx_cec.c / .h
-
-4. Analog
-Interfacing with the real world (sensors and audio).
-
-ADC: stm32f4xx_adc.c / .h
-
-Functions: ADC_Init, ADC_RegularChannelConfig, ADC_SoftwareStartConv.
-
-DAC: stm32f4xx_dac.c / .h
-
-Functions: DAC_Init, DAC_SetChannel1Data.
-
-5. Other
-The utilities that glue everything together.
-
-GPIO: stm32f4xx_gpio.c / .h
-
-Functions: GPIO_Init, GPIO_WriteBit, GPIO_ReadInputDataBit.
-
-DMA: stm32f4xx_dma.c / .h
-
-Functions: DMA_Init, DMA_Cmd (Enable/Disable stream).
-
-EXTI: stm32f4xx_exti.c / .h
-
-Functions: EXTI_Init (Map pin to interrupt line).
-
-DCMI: stm32f4xx_dcmi.c / .h
-
-Functions: DCMI_Init, DCMI_CaptureCmd.
-
-DBG: stm32f4xx_dbgmcu.c / .h
-
-Functions: DBGMCU_Config (e.g., Keep timers running while CPU is halted in debug mode).
-
-Summary of What Goes Inside
-Since you are writing these (or reviewing them):
-
-The Header (.h):
-
-Structure Definitions: typedef struct { uint32_t Pin; uint32_t Mode; ... } GPIO_InitTypeDef;
-
-Macros: #define GPIO_PIN_5 (1U << 5)
-
-Prototypes: void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct);
-
-The Source (.c):
-
-Register Math: The actual code that touches the memory.
-
-GPIOx->MODER |= (GPIO_InitStruct->Mode << (pinpos * 2));
-
-Project Tip: You don't need all of these files for every project. If your project is just "Blinky," you only need RCC (clocks) and GPIO (pins). You can add the others (SPI, UART) only when you need them.
-
-
-
-graph TD
-    INIT[System Init] --> SLEEP(State: DEEP SLEEP)
-    SLEEP -->|Wakeup Btn| LOCKED(State: LOCKED)
-    LOCKED -->|Key Press| AUTH(State: AUTHENTICATION)
-    
-    AUTH -->|Correct PIN| MENU(State: COMMANDER MODE)
-    AUTH -->|Wrong PIN x3| LOCKOUT(State: LOCKOUT)
-    
-    LOCKOUT -->|Time > 20s| SLEEP
-    
-    MENU -->|Inactivity > 30s| SLEEP
-    MENU -->|Logout Selected| SLEEP
-
-
-
-
-
-
-
-
-
-To learn device driver development from scratch, you cannot just jump into SPI or I2C. You must follow a specific hierarchy because complex drivers rely on simpler ones.Here is the prioritized list of peripherals you need to master, ranked from "Absolute Foundation" (High Priority) to "Specialized/Advanced" (Low Priority).1. The Foundation (You cannot skip these)Before you write a driver for a sensor, you must master these. If these are wrong, nothing else works.PriorityPeripheralWhy it is #11RCC (Reset & Clock Control)The Heart. In STM32/ARM, every peripheral is "OFF" by default to save power. You must write an RCC driver to enable clocks before you can use GPIO, UART, or SPI.2GPIO (General Purpose I/O)The Hands. Every other protocol (SPI, I2C, UART) eventually uses pins. You need to know how to configure pins as Inputs, Outputs, or Alternate Functions.3NVIC / EXTI (Interrupts)The Nerves. Real-world drivers don't just "wait" (polling); they use interrupts. You must learn how to enable IRQs (e.g., "Tell CPU when a byte arrives").4SysTick (System Timer)The Pulse. Used for simple delays (delay_ms) and is the heartbeat for RTOS later.2. The Core Connectivity (The "Big 4" you asked about)Once the foundation is ready, learn these in this specific order.1. UART / USART (Universal Asynchronous Receiver-Transmitter)Why First? It is your Debugging Tool.Goal: Write a driver that allows you to use printf() to send text to your computer screen. Without this, you are coding blind.Key Concept: Baud rate calculation, Transmit (TX) vs Receive (RX).2. SPI (Serial Peripheral Interface)Why Second? It is simpler than I2C. It has no complex addresses or acknowledgments.Use Cases: TFT Displays, SD Cards, Flash Memory chips.Key Concept: Master/Slave, Clock Polarity (CPOL) & Phase (CPHA).3. I2C (Inter-Integrated Circuit)Why Third? It is harder to debug. It requires pull-up resistors and has complex "Start," "Stop," and "Ack" conditions.Use Cases: Most sensors (Temperature, Accelerometer, Gyro).Key Concept: Device Addresses (7-bit), Open-Drain configuration.3. The "Force Multipliers" (High Priority Extras)These are not communication protocols, but they make your drivers professional and high-performance.1. TIM (General Purpose Timers)Priority: HighWhy: You need this for PWM (dimming LEDs, controlling motor speed) and for precise timing measurements (measuring how long a signal is high).Key Concept: Prescalers, Auto-Reload Register (ARR), Capture/Compare.2. ADC (Analog-to-Digital Converter)Priority: Medium-HighWhy: The real world is analog (Battery voltage, Temperature, Microphone audio).Key Concept: Sampling time, Resolution (12-bit vs 10-bit), Continuous vs Single mode.3. DMA (Direct Memory Access)Priority: Medium (But Critical for "Pro" level)Why: It allows you to transfer data (e.g., from UART to RAM) without using the CPU.Key Concept: Circular buffers, memory-to-peripheral transfer. Note: Learn this only after you master the standard polling/interrupt drivers.4. Specialized / Low Priority (Learn Later)Don't worry about these until you have a specific project needing them.WWDG / IWDG (Watchdogs): Essential for product reliability (restarts system if it hangs), but annoying during development.RTC (Real Time Clock): Just for keeping dates/time.Flash / EEPROM: Writing data to the chip's internal permanent memory.CAN Bus: Critical for Automotive (cars), but complex.USB: Very complex. Usually, people use Middleware (TinyUSB or ST's USB Stack) rather than writing a driver from scratch.Recommended Learning Path (Step-by-Step)RCC + GPIO: Blink an LED using registers.SysTick: Create a delay(1000) function without a for loop.UART: Send "Hello World" to your PC.Interrupts: Toggle LED when a Button is pressed (using EXTI).SPI: Communicate with a simple shift register or display.I2C: Read temperature from a sensor (like MPU6050 or BMP180).ADC + DMA: Read a potentiometer value continuously without blocking the CPU.
-
-
-Priority Ranking for Professional Projects:
-Tier 1 (Always Include):
-
-DMA, NVIC/Interrupt, Timer, Systick, Flash, PWR
-
-Tier 2 (Very Common):
-
-ADC, IWDG, EXTI
-
-Tier 3 (Application Specific):
-
-CAN, USB, SDIO, RTC, DAC, Advanced Timers
-
-Most professional projects use 8-12 drivers minimum from this list!
-
-```
-
-## **4. Connection Diagram**
-```
-STM32F446RE Connections:
-========================
-
-KEYPAD (4x4 Matrix):
---------------------
-R0 → PB0 (Row 0 - Output)
-R1 → PB1 (Row 1 - Output)
-R2 → PB2 (Row 2 - Output)
-R3 → PB3 (Row 3 - Output)
-
-C0 → PB4 (Column 0 - Input with Pull-up)
-C1 → PB5 (Column 1 - Input with Pull-up)
-C2 → PB6 (Column 2 - Input with Pull-up)
-C3 → PB7 (Column 3 - Input with Pull-up)
-
-LCD 16*2 
-
-
-
-UART2 (for minicom):
---------------------
-PA2 → TX (Connect to USB-Serial RX)
-PA3 → RX (Connect to USB-Serial TX)
-GND → GND
+*Built with ❤️ for the embedded systems community # Smart Home Automation System - STM32F446RE

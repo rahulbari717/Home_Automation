@@ -41,6 +41,19 @@ void BSP_Delay_Init(void)
 }
 
 /**
+ * @brief Simple blocking microsecond delay for bit-banging
+ */
+void BSP_Delay_us(uint32_t us) {
+    // 180MHz clock = 180 cycles per us.
+    // This loop takes roughly 3-4 cycles per iteration.
+    uint32_t count = us * 45;
+    while(count--) {
+        __asm("nop");
+    }
+}
+
+
+/**
  * @brief Provides a blocking delay for a specific number of milliseconds
  */
 void BSP_Delay_ms(uint32_t ms)

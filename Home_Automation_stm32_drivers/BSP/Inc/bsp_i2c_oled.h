@@ -54,3 +54,6 @@ void OLED_Printf(uint8_t x, uint8_t y, const char *format, ...);
 /* NEW: Function to draw a full bitmap */
 void BSP_OLED_DrawBitmap(const uint8_t *bitmap);
 #endif /* BSP_I2C_OLED_H_ */
+
+/* ===== BSP_I2C_OLED.H ===== */
+

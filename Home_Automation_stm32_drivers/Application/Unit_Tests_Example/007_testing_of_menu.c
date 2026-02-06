@@ -1,45 +1,20 @@
 /*
- * 007_testing_of_menu.c
+ * main.c
  *
  *  Created on: Jan 25, 2026
  *      Author: Rahul B.
  */
 
-/*
-    To make this work, we will treat the system as 
-    having three main "States": STANDBY, AUTHENTICATING, and ACTIVE.
-
-    🛠️ Hardware Requirements
-    LEDs: White (Standby), Green (Success), Red (Error).
-    Inputs: Push Button (Start), 4x4 Keypad (PIN).
-    Feedback: Buzzer, UART Terminal (Display).
-
-    🧠 System Logic Flow
-    STANDBY Mode (System Off):
-    White LED: Blinks (1s ON, 3s OFF).
-    The MCU is waiting for the Button Interrupt (EXTI13).
-
-    AUTHENTICATION Mode:
-    Green LED: ON (System is "Awake").
-    UART: Displays "Enter 4-Digit PIN:".
-    Keypad: Collects 4 keys. You have 3 attempts.
-
-    SUCCESS / ACTIVE Mode:
-    UART: Shows the Menu (1-9 for Hall LEDs, etc.).
-    Wait for user commands.
-    FAILURE / LOCKOUT Mode:
-    Red LED + Buzzer: Toggle (1s ON, 1s OFF) for 3 seconds.
-    System: Shuts down and returns to STANDBY.
-*/
 
 #include "bsp_init.h"
 #include "bsp_keypad.h"
+#include "state_machine.h"
 
 /* ===== Private Macros & Constants ===== */
 #define MASTER_PIN          "1234"
 
 /* ===== Global Variables ===== */
-USART_Handle_t usart2_handle;
+static USART_Handle_t usart2_handle;
 SystemState_t current_state = STATE_STANDBY;
 volatile uint8_t system_start_flag = 0; // Triggered by Button Interrupt
 
@@ -197,10 +172,15 @@ void EXTI15_10_IRQHandler(void) {
 
 /* ================= HELPER FUNCTIONS ================= */
 
-void delay_ms(uint32_t ms) {
-    // Approximate delay for 16MHz Clock
-    for(uint32_t i = 0; i < (ms * 1000); i++);
+/**
+ * @brief Helper function to clear LCD and print two lines
+ */
+void update_lcd_display(const char *line1, const char *line2) {
+    BSP_LCD_SendCommand(LCD_CMD_CLEAR);
+    BSP_Delay_ms(2); // Wait for clear to finish
+    BSP_LCD_SetCursor(0, 0);
+    BSP_LCD_PrintString((char*)line1);
+    BSP_LCD_SetCursor(1, 0);
+    BSP_LCD_PrintString((char*)line2);
 }
-
-
 

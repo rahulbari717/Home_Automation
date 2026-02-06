@@ -17,16 +17,24 @@ int main(){
 
 	app_init();
 
-	while(1){
-		if(GPIO_ReadFromInputPin(GPIOC, GPIO_PIN_NO_13) == BTN_PRESSED){
-		    // Button is pressed: Turn LED ON
-		    GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_5, GPIO_PIN_SET);
-		    delay();
-		}else{
-			// Button is NOT pressed: Turn LED OFF
-		    GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_5, GPIO_PIN_RESET);
+	while(1) {
+		if(BSP_Button_GetState() == BSP_BUTTON_PRESSED) {
+			BSP_LED_Write(LED_GREEN_PIN, GPIO_PIN_SET);
+		} else {
+			BSP_LED_Write(LED_GREEN_PIN, GPIO_PIN_RESET);
 		}
 	}
+
+//	while(1){
+//		if(GPIO_ReadFromInputPin(GPIOC, GPIO_PIN_NO_13) == BTN_PRESSED){
+//		    // Button is pressed: Turn LED ON
+//		    GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_5, GPIO_PIN_SET);
+//		    delay();
+//		}else{
+//			// Button is NOT pressed: Turn LED OFF
+//		    GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_5, GPIO_PIN_RESET);
+//		}
+//	}
 
 	return 0;
 }

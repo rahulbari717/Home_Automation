@@ -14,14 +14,14 @@ int main(void)
     // Initialize the state machine and all peripherals
     StateMachine_Init();
     // Start your requested peripheral test here
-    Run_Complete_Peripheral_Test();
+//    Run_Complete_Peripheral_Test();
 
     UART_Printf("\r\n[MAIN] Entering main loop...\r\n");
 
     // Main loop - Run state machine forever
-//    while (1) {
-//        StateMachine_Run();
-//    }
+    while (1) {
+        StateMachine_Run();
+    }
 
     return 0;
 }

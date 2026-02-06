@@ -17,8 +17,8 @@
 
 /* Function Prototypes */
 void BSP_Button_Init(void);
-uint8_t BSP_Button_GetState(void);
 void BSP_Button_IRQHandling(void);
+uint8_t BSP_Button_Read(void);
 
 /* Callback function (Weakly defined in .c, can be overridden in main.c) */
 void BSP_Button_Callback(void);

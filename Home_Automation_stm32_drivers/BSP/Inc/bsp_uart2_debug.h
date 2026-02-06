@@ -9,6 +9,9 @@
 
 #include "main.h"
 
+void USART2_GPIOInit(void);
+void USART2_Init(void);
+
 /* printf style function for UART */
 void UART_Printf(const char *format, ...);
 
@@ -30,4 +33,4 @@ USART_Handle_t* Debug_GetHandle(void);
 
 #endif /* BSP_UART2_DEBUG_H_ */
 
-
+/* ===== BSP_UART2_DEBUG.H ===== */

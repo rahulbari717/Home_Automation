@@ -6,6 +6,7 @@
  */
 
 #include "bsp_button.h"
+#include "bsp_delay.h"
 
 /**
  * @brief  Initializes the Wakeup button (PC13) with Interrupt capability.
@@ -35,7 +36,8 @@ void BSP_Button_Init(void) {
  * @brief  Reads the current physical state of the button.
  * @return BSP_BUTTON_PRESSED or BSP_BUTTON_RELEASED
  */
-uint8_t BSP_Button_GetState(void) {
+
+uint8_t BSP_Button_Read(void) {
     return GPIO_ReadFromInputPin(WAKEUP_BTN_PORT, WAKEUP_BTN_PIN);
 }
 
@@ -52,7 +54,8 @@ __weak void BSP_Button_Callback(void) {
  */
 void BSP_Button_IRQHandling(void) {
     // Debounce delay (Simple method from your reference)
-    for(int i = 0; i < 500000/2; i++);
+//    for(int i = 0; i < 500000/2; i++);
+	BSP_Delay_100ms();
 
     // Clear the pending interrupt flag in the GPIO driver
     GPIO_IRQHandling(WAKEUP_BTN_PIN);

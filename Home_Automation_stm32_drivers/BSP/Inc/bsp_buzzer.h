@@ -19,3 +19,7 @@ void BSP_Buzzer_Toggle(void);
 void BSP_Buzzer_Beep(uint32_t duration_ms);
 
 #endif /* INC_BSP_BUZZER_H_ */
+
+
+/* ===== BSP_BUZZER.H ===== */
+

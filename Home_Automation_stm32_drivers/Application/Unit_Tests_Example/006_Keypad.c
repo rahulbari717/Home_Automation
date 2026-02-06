@@ -7,7 +7,7 @@
 
 #include "bsp_init.h"
 #include "bsp_keypad.h"
-USART_Handle_t usart2_handle;
+static USART_Handle_t usart2_handle;
 /* ===== MAIN APPLICATION ===== */
 int main(void)
 {

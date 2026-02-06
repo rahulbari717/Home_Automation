@@ -11,13 +11,6 @@
 #include "main.h"
 #include "config.h"
 
-extern USART_Handle_t usart2_handle;
-
 void app_init(void);
-void gpio_init(void);
-void button_init(void);
-void USART2_GPIOInit(void);
-void USART2_Init(void);
-void UART_Printf(const char *format, ...);
 
 #endif /* INC_BSP_INIT_H_ */

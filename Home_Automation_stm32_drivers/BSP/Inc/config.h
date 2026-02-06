@@ -22,7 +22,6 @@
 #define OLED_UPDATE_INTERVAL        1000  // ms
 #define LCD_UPDATE_INTERVAL         500   // ms
 
-
 /* ===== LDR SENSORS (ADC) ===== */
 #define SENSOR_GPIO_PORT        	GPIOA
 #define SENSOR_LDR1_PIN         	GPIO_PIN_NO_0  // ADC1_IN0
@@ -54,12 +53,12 @@
 #define DS18B20_PIN                 GPIO_PIN_NO_8
 
 /* ===== BLUETOOTH HC-05 (USART1) ===== */
-#define BT_USART_PORT           	GPIOA
-#define BT_TX_PIN               	GPIO_PIN_NO_9   // USART1_TX (AF7)
-#define BT_RX_PIN               	GPIO_PIN_NO_10  // USART1_RX (AF7)
-#define BT_USART                	USART1
-#define BT_USART_AF             	7
-#define BT_BAUD_RATE            	9600
+//#define BT_USART_PORT           	GPIOA
+//#define BT_TX_PIN               	GPIO_PIN_NO_9   // USART1_TX (AF7)
+//#define BT_RX_PIN               	GPIO_PIN_NO_10  // USART1_RX (AF7)
+//#define BT_USART                	USART1
+//#define BT_USART_AF             	7
+//#define BT_BAUD_RATE            	9600
 
 /* ===== KEYPAD PIN CONFIGURATION ===== */
 /* 4x4 Matrix Keypad Layout:
@@ -97,9 +96,9 @@
 #define RCWL_PIN                	GPIO_PIN_NO_10
 
 /* ===== KY-028 Configuration ===== */
-#define KY028_DIGITAL_PORT          GPIOB
-#define KY028_DIGITAL_PIN           GPIO_PIN_NO_11
-#define TEMP_ALARM_THRESHOLD        28  // Degrees Celsius
+// #define KY028_DIGITAL_PORT          GPIOB
+// #define KY028_DIGITAL_PIN           GPIO_PIN_NO_11
+// #define TEMP_ALARM_THRESHOLD        28  // Degrees Celsius
 
 // Relays (with transistor buffers)
 #define RELAY_PORT                  GPIOB
@@ -125,7 +124,7 @@
 #define IR1_PORT                    GPIOC
 #define IR1_PIN                     GPIO_PIN_NO_6
 #define IR2_PORT                    GPIOC
-#define IR2_PIN                     GPIO_PIN_NO_7
+#define IR2_PIN                     GPIO_PIN_NO_8
 
 /* ===== WAKEUP BUTTON ===== */
 #define WAKEUP_BTN_PORT             GPIOC
@@ -149,13 +148,5 @@
 /* ===== MENU NAVIGATION ===== */
 #define MENU_MAX_DEPTH              3
 #define MENU_ITEMS_PER_SCREEN       2
-
-/* ===== State Machine Enumeration ===== */
-typedef enum {
-    STATE_STANDBY,
-    STATE_AUTHENTICATING,
-    STATE_ACTIVE_MENU,
-    STATE_LOCKOUT
-} SystemState_t;
 
 #endif /* INC_CONFIG_H_ */

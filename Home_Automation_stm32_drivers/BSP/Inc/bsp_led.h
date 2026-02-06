@@ -17,4 +17,5 @@ void BSP_LED_Off(uint8_t PinNumber);
 void BSP_LED_Toggle(uint8_t pinNumber);
 
 void BSP_LED_AllOff(void);
+
 #endif /* INC_BSP_LED_H_ */

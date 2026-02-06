@@ -17,7 +17,12 @@
 #define LCD_CMD_RETURN_HOME     0x02
 #define LCD_CMD_ENTRY_MODE      0x06
 #define LCD_CMD_DISPLAY_ON      0x0C
+#define LCD_CMD_CURSOR_OFF      0x0C
 #define LCD_CMD_FUNCTION_SET    0x28 // 4-bit mode, 2 lines, 5x8 font
+#define LCD_CMD_DISPLAY_OFF     0x08
+#define LCD_CMD_CURSOR_ON       0x0E
+#define LCD_CMD_BLINK_ON        0x0F
+#define LCD_CMD_SET_CURSOR      0x80
 
 /* Initializes GPIOs and LCD controller */
 void BSP_LCD_Init(void);
@@ -33,6 +38,5 @@ void BSP_LCD_PrintString(char *message);
 
 /* Moves cursor to specific row (0/1) and column (0-15) */
 void BSP_LCD_SetCursor(uint8_t row, uint8_t col);
-
 
 #endif /* INC_BSP_LCD_H_ */

@@ -6,9 +6,9 @@
  */
 
 #include "bsp_keypad.h"
-
 #include "stm32f446xx.h"
 #include "stm32f446xx_gpio_driver.h"
+#include "config.h"
 #include <string.h>
 
 /* ===== Keypad Character Map ===== */
