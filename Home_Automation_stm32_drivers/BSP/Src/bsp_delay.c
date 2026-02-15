@@ -1,5 +1,7 @@
-#include "bsp_delay.h"
 #include "stm32f446xx_rcc_driver.h"
+#include "stm32f446xx_timer_driver.h"
+#include "bsp_delay.h"
+#include "bsp_uart2_debug.h"
 
 /* ===== RCC Configuration (Simplified - Using your actual driver) ===== */
 void RCC_Config_MaxSpeed(void) {
@@ -28,6 +30,19 @@ void RCC_Config_MaxSpeed(void) {
     clk_config.APB2CLKDivider = RCC_HCLK_DIV2;
 
     RCC_ClockConfig(&clk_config, RCC_FLASH_LATENCY_5WS);
+
+//    /* ===== Print System Speeds ===== */
+//	uint32_t sysclk = RCC_GetSystemClock();
+//	uint32_t hclk   = RCC_GetHCLKFreq();
+//	uint32_t pclk1  = RCC_GetPCLK1Value();
+//	uint32_t pclk2  = RCC_GetPCLK2Value();
+//
+//	UART_Printf("\r\n--- Clock Configuration Complete ---\r\n");
+//	UART_Printf("SYSCLK (Core): %u MHz\r\n", sysclk / 1000000);
+//	UART_Printf("HCLK   (AHB):  %u MHz\r\n", hclk / 1000000);
+//	UART_Printf("PCLK1  (APB1): %u MHz\r\n", pclk1 / 1000000);
+//	UART_Printf("PCLK2  (APB2): %u MHz\r\n", pclk2 / 1000000);
+//	UART_Printf("------------------------------------\r\n");
 }
 
 /**
@@ -35,60 +50,43 @@ void RCC_Config_MaxSpeed(void) {
  */
 void BSP_Delay_Init(void)
 {
+    RCC_Config_MaxSpeed();
     // Calls your driver function to set up TIM2 for 1us ticks
     TIMER_DelayInit();
-    RCC_Config_MaxSpeed();
+
 }
 
 /**
- * @brief Simple blocking microsecond delay for bit-banging
+ * @brief Microsecond delay using TIM2
  */
-void BSP_Delay_us(uint32_t us) {
-    // 180MHz clock = 180 cycles per us.
-    // This loop takes roughly 3-4 cycles per iteration.
-    uint32_t count = us * 45;
-    while(count--) {
-        __asm("nop");
-    }
+void BSP_Delay_us(uint32_t us)
+{
+    TIMER_DelayUs(TIM2, us);
 }
 
-
 /**
- * @brief Provides a blocking delay for a specific number of milliseconds
+ * @brief Millisecond delay using TIM2
  */
 void BSP_Delay_ms(uint32_t ms)
 {
-    // Uses your driver's blocking delay function
     TIMER_DelayMs(TIM2, ms);
 }
 
-/**
- * @brief 100 Millisecond Delay
- */
 void BSP_Delay_100ms(void)
 {
     BSP_Delay_ms(100);
 }
 
-/**
- * @brief 500 Millisecond Delay
- */
 void BSP_Delay_500ms(void)
 {
     BSP_Delay_ms(500);
 }
 
-/**
- * @brief 1 Second Delay
- */
 void BSP_Delay_1s(void)
 {
     BSP_Delay_ms(1000);
 }
 
-/**
- * @brief 3 Second Delay
- */
 void BSP_Delay_3s(void)
 {
     BSP_Delay_ms(3000);

@@ -20,6 +20,10 @@ void BSP_Button_Init(void);
 void BSP_Button_IRQHandling(void);
 uint8_t BSP_Button_Read(void);
 
+/* Additional ISR-based initializations */
+void PC8_Button_Init(void);
+void PC6_IR_Init(void);
+
 /* Callback function (Weakly defined in .c, can be overridden in main.c) */
 void BSP_Button_Callback(void);
 

@@ -1,397 +1,414 @@
 /*
- * state_handlers.c
- *
- * Created on: Jan 28, 2026
- * Author: Rahul B.
- * Description: Individual State Handler Functions
- */
+* state_handlers.c
+*
+* Created on: Jan 28, 2026
+* Author: Rahul B.
+* Description: Individual State Handler Functions
+*/
 
+#include "stm32f446xx_i2c_driver.h"
 #include "state_machine.h"
-#include "bsp_ir_sensors.h"
 #include "bsp_keypad.h"
 #include "bsp_led.h"
 #include "bsp_lcd.h"
 #include "bsp_i2c_oled.h"
 #include "bsp_uart2_debug.h"
 #include "bsp_delay.h"
-
+#include "bsp_buzzer.h"
+#include "bsp_relay.h"
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
+#include "bsp_button.h"
+#include "bsp_ldr.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-/* ===== STATE: STANDBY ===== */
+/* GLOBAL VARIABLES (Missing in your previous build) */
+
+extern volatile uint8_t g_wakeup_flag;
+
+uint8_t login_attempts = 0;  
+uint8_t selected_item = 0;    
 
 /**
- * @brief Standby mode - Wait for user interaction
+ * @brief Safely changes system state and performs one-time entry actions
  */
-void Handle_Standby(void)
-{
-    // Check for keypad input
-    char key = Keypad_GetKey();
-    if (key != KEYPAD_NO_KEY) {
-        UART_Printf("[STANDBY] Key pressed: %c. Transitioning to AUTH.\r\n", key);
-        StateMachine_SetState(STATE_AUTHENTICATING);
-        return;
-    }
-    
-    // Check for IR sensor triggers
-    if (BSP_Sensor_Read_IR1() || BSP_Sensor_Read_IR2()) {
-        UART_Printf("[STANDBY] IR sensor triggered.\r\n");
-        StateMachine_SetState(STATE_AUTHENTICATING);
-        return;
-    }
-    
-    // Periodic status update
-    static uint32_t lastStatusUpdate = 0;
-    if (CheckTimeout(lastStatusUpdate, 10000)) { // Every 10 seconds
-        UART_Printf("[STANDBY] System ready. IR1:%d IR2:%d \r\n",
-                    g_SensorData.ir1_detected,
-                    g_SensorData.ir2_detected);
-        lastStatusUpdate = GetSystemTick();
-    }
+void StateMachine_SetState(SystemState_t newState) {
+    if (g_SystemContext.currentState == newState) return;
+
+    // 1. Log transition to all three outputs once
+    const char* stateNames[] = {
+        "STANDBY", "AUTH GATE", "MAIN MENU", "MONITORING",
+        "DEVICE CTRL", "SETTINGS", "LOCKED!!", "SYS ERROR"
+    };
+
+    print_Log("TO: %s", stateNames[newState]); // Synchronized UART/LCD/OLED log
+
+    // 2. Perform one-time cleanup/initialization
+    BSP_LCD_SendCommand(LCD_CMD_CLEAR); // Clear LCD
+    BSP_OLED_Clear();                   // Clear OLED buffer
+
+    // 3. Update state
+    g_SystemContext.currentState = newState;
 }
 
-/* ===== STATE: AUTHENTICATING ===== */
+/* ========================================================================
+   STATE 1: STANDBY MODE
+   - White LED blinks 1s ON / 3s OFF
+   - Wait for keypad or button interrupt
+   - IR intrusion detection with buzzer alarm
+   ======================================================================== */
+void Handle_Standby(void) {
+    BSP_LED_AllOff();
+    
+    BSP_LCD_SetCursor(0, 0);
+    BSP_LCD_PrintString(" Standby Mode ");
+    // UI: Static text only if just entered (handled by print_Log in SetState)
+    BSP_LCD_SetCursor(1, 0);
+    BSP_LCD_PrintString(" PRESS PC13 BTN ");
 
-/**
- * @brief Authentication mode - PIN entry and verification
- */
+    // White LED Blink Logic (PA7)
+	BSP_LED_On(LED_WHITE_PIN);
+	BSP_Delay_ms(1000);
+	BSP_LED_Off(LED_WHITE_PIN);
+
+	// Wait 3s or check for wakeup
+	for(int i=0; i<150; i++) {  // ✅ 150 × 20ms = 3000ms = 3 seconds
+		if(g_wakeup_flag || (GPIO_ReadFromInputPin(GPIOC, GPIO_PIN_NO_13) == 0)) {
+			g_wakeup_flag = 0;
+            BSP_Delay_ms(200); // Debounce
+			UART_Printf("[EVENT] Wakeup triggered!\r\n");
+            UART_Printf("[EVENT] Standby to Authentication \r\n");
+			Device_PlayBuzzer(BEEP_SUCCESS);
+			g_SystemContext.currentState = STATE_AUTHENTICATING;
+			return;
+		}
+		BSP_Delay_ms(20);
+	}
+}
+
+/* ========================================================================
+   STATE 2: AUTHENTICATION MODE
+   - Green LED ON (all others OFF)
+   - LCD shows "Enter PIN:"
+   - Wait for 4-digit PIN via keypad
+   - 3 failed attempts → LOCKOUT
+   ======================================================================== */
 void Handle_Authentication(void)
 {
-    // Check for timeout
-    if (CheckTimeout(g_SystemContext.lastActivityTime, SCREEN_TIMEOUT_SEC * 1000)) {
-        UART_Printf("[AUTH] Timeout. Returning to STANDBY.\r\n");
-        StateMachine_SetState(STATE_STANDBY);
-        return;
+	// print_Log("Auth Mode : ");
+
+    BSP_LED_AllOff();
+    BSP_LED_On(LED_GREEN_PIN);
+
+    char input_pin[PIN_LENGTH + 1] = {0};
+    uint8_t char_count = 0; // Fixed: replaced 'count' with 'char_count'
+
+    update_lcd_display("ENTER PIN:", "");
+
+    while(char_count < PIN_LENGTH) {
+        char key = Keypad_GetKey();
+        if(key != KEYPAD_NO_KEY && key >= '0' && key <= '9') {
+            input_pin[char_count] = key;
+            BSP_LCD_SetCursor(1, char_count);
+            BSP_LCD_SendData('*');
+            char_count++;
+            UART_Printf("*"); 
+        }
     }
-    
-    // Get keypad input
-    char key = Keypad_GetKey();
-    if (key != KEYPAD_NO_KEY) {
-        Auth_ProcessKeyPress(key);
-        g_SystemContext.lastActivityTime = GetSystemTick();
+    input_pin[PIN_LENGTH] = '\0';
+
+    if(strcmp(input_pin, MASTER_PIN) == 0) {
+        print_Log("AUTH SUCCESS");
+        Device_PlayBuzzer(BEEP_SUCCESS);
+        login_attempts = 0;
+        g_SystemContext.currentState = STATE_ACTIVE_MENU;
+    } else {
+        login_attempts++; // Increase count on every failure
+
+        if(login_attempts > 3) {
+            // After 3 wrong tries, go to LOCKOUT
+        	Device_PlayBuzzer(BEEP_ERROR);
+            print_Log("MAX ATTEMPTS! LOCKOUT");
+            g_SystemContext.currentState = STATE_LOCKOUT;
+        } else {
+            // Still have chances left, go back to try again or stay in AUTH
+            print_Log("WRONG PIN! TRY %d/3", login_attempts);
+            Device_PlayBuzzer(BEEP_WARNING);
+            g_SystemContext.currentState = STATE_AUTHENTICATING; // Reset the auth screen
+        }
+        BSP_Delay_1s();
     }
 }
 
-/* ===== STATE: ACTIVE MENU ===== */
-
-/**
- * @brief Active menu - Main menu navigation
- */
+/* ========================================================================
+   STATE 3: ACTIVE MENU MODE
+   - Green LED remains ON
+   - Menu navigation: 2=Up, 8=Down, 5=Select, #=Logout
+   - Four menu options:
+     1. Sensor Monitor
+     2. Device Control
+     3. Settings
+     4. Logout
+   ======================================================================== */
 void Handle_ActiveMenu(void)
 {
-    // Check for timeout
-    if (CheckTimeout(g_SystemContext.lastActivityTime, SCREEN_TIMEOUT_SEC * 1000)) {
-        UART_Printf("[MENU] Timeout. Logging out.\r\n");
-        StateMachine_SetState(STATE_STANDBY);
-        return;
-    }
+//	print_Log("Active Mode : ");
+	BSP_LED_AllOff();
+//    BSP_LED_On(LED_GREEN_PIN);
+    Menu_Display();
     
-    // Get keypad input
     char key = Keypad_GetKey();
-    if (key != KEYPAD_NO_KEY) {
-        g_SystemContext.lastActivityTime = GetSystemTick();
-        
-        switch (key) {
-            case KEY_UP:        // '2'
-                if (g_SystemContext.menuCursor > 0) {
-                    g_SystemContext.menuCursor--;
-                    UART_Printf("[MENU] Cursor UP: %d\r\n", g_SystemContext.menuCursor);
-                }
+    if(key == '2') { // Up
+        if (g_SystemContext.menuCursor > 0) {
+            g_SystemContext.menuCursor--;
+        }
+    } else if(key == '8') { // Down
+        if (g_SystemContext.menuCursor < 3) {
+            g_SystemContext.menuCursor++;
+        }
+    } else if(key == '5') { // Select
+        switch(g_SystemContext.menuCursor) {
+            case 0: // Sensors
+                g_SystemContext.currentState = STATE_SENSOR_MONITOR;
                 break;
-                
-            case KEY_DOWN:      // '8'
-                if (g_SystemContext.menuCursor < 3) {
-                    g_SystemContext.menuCursor++;
-                    UART_Printf("[MENU] Cursor DOWN: %d\r\n", g_SystemContext.menuCursor);
-                }
+            case 1: // Controls
+                g_SystemContext.currentState = STATE_CONTROL_DEVICES;
                 break;
-                
-            case KEY_ENTER:     // '5'
-                UART_Printf("[MENU] Selection: %d\r\n", g_SystemContext.menuCursor);
-                Menu_ProcessSelection();
+            case 2: // Settings
+                // Reserved for future
                 break;
-                
-            case KEY_LOGOUT:    // '#'
-                UART_Printf("[MENU] Logout requested.\r\n");
-                StateMachine_SetState(STATE_STANDBY);
-                break;
-                
-            default:
+            case 3: // Logout
+                g_SystemContext.currentState = STATE_STANDBY;
+                g_SystemContext.isAuthenticated = false;
                 break;
         }
-        
-        // Update display
-        Display_UpdateLCD();
+        BSP_LCD_SendCommand(LCD_CMD_CLEAR);
+    } else if(key == '#') {
+        g_SystemContext.currentState = STATE_STANDBY;
+        g_SystemContext.isAuthenticated = false;
     }
+    BSP_Delay_ms(150);
 }
 
-/* ===== STATE: SENSOR MONITOR ===== */
-
-/**
- * @brief Sensor monitoring mode - Display sensor readings
- */
-void Handle_SensorMonitor(void)
+void Handle_SensorMonitor(void) 
 {
-    // Check for timeout
-    if (CheckTimeout(g_SystemContext.lastActivityTime, SCREEN_TIMEOUT_SEC * 1000)) {
-        UART_Printf("[SENSOR] Timeout. Returning to menu.\r\n");
-        StateMachine_SetState(STATE_ACTIVE_MENU);
-        return;
-    }
+	BSP_LCD_SetCursor(0,0);
+	BSP_LCD_PrintString("SENSOR DASHBOARD");
+    // Update sensor readings
+    g_SensorData.ldr1_value = BSP_Sensor_ReadLDR(SENSOR_LDR1_CHANNEL);
+    g_SensorData.ldr2_value = BSP_Sensor_ReadLDR(SENSOR_LDR2_CHANNEL);
     
-    // Auto-cycle through sensor screens
-    static uint32_t lastScreenChange = 0;
-    if (CheckTimeout(lastScreenChange, 2000)) { // Change every 2 seconds
-        g_SystemContext.currentSensorScreen = 
-            (g_SystemContext.currentSensorScreen + 1) % 3;
-        lastScreenChange = GetSystemTick();
-    }
+    Sensors_DisplayOnLCD();
     
-    // Get keypad input
     char key = Keypad_GetKey();
-    if (key != KEYPAD_NO_KEY) {
-        g_SystemContext.lastActivityTime = GetSystemTick();
-        
-        switch (key) {
-            case KEY_UP:        // '2' - Previous screen
-                if (g_SystemContext.currentSensorScreen > 0) {
-                    g_SystemContext.currentSensorScreen--;
-                }
-                break;
-                
-            case KEY_DOWN:      // '8' - Next screen
-                g_SystemContext.currentSensorScreen = 
-                    (g_SystemContext.currentSensorScreen + 1) % 3;
-                break;
-                
-            case KEY_BACK:      // '*'
-                UART_Printf("[SENSOR] Back to menu.\r\n");
-                StateMachine_SetState(STATE_ACTIVE_MENU);
-                return;
-                
-            case KEY_LOGOUT:    // '#'
-                UART_Printf("[SENSOR] Logout.\r\n");
-                StateMachine_SetState(STATE_STANDBY);
-                return;
-                
-            default:
-                break;
+    if(key == '*') {
+        g_SystemContext.currentState = STATE_ACTIVE_MENU;
+    } else if (key == '#') {
+        g_SystemContext.currentState = STATE_STANDBY;
+        g_SystemContext.isAuthenticated = false;
+    }
+    
+    BSP_Delay_ms(200);
+}
+
+void Handle_ControlDevices(void) 
+{
+    Menu_Display();
+    
+    char key = Keypad_GetKey();
+    if(key == '2') { // Up
+        if (g_SystemContext.currentControlItem > 0) {
+            g_SystemContext.currentControlItem--;
         }
-    }
-    
-    // Send sensor data via UART
-    static uint32_t lastUARTUpdate = 0;
-    if (CheckTimeout(lastUARTUpdate, 1000)) {
-        Sensors_SendUART();
-        lastUARTUpdate = GetSystemTick();
-    }
-
-}
-
-/* ===== STATE: CONTROL DEVICES ===== */
-
-/**
- * @brief Device control mode - Control LEDs, Relays, Buzzer
- */
-void Handle_ControlDevices(void)
-{
-    // Check for timeout
-    if (CheckTimeout(g_SystemContext.lastActivityTime, SCREEN_TIMEOUT_SEC * 1000)) {
-        UART_Printf("[CONTROL] Timeout. Returning to menu.\r\n");
-        StateMachine_SetState(STATE_ACTIVE_MENU);
-        return;
-    }
-    
-    // Get keypad input
-    char key = Keypad_GetKey();
-    if (key != KEYPAD_NO_KEY) {
-        g_SystemContext.lastActivityTime = GetSystemTick();
-        
-        switch (key) {
-            case KEY_UP:        // '2' - Previous item
-                if (g_SystemContext.currentControlItem > 0) {
-                    g_SystemContext.currentControlItem--;
-                    UART_Printf("[CONTROL] Item UP: %d\r\n", g_SystemContext.currentControlItem);
-                }
+    } else if(key == '8') { // Down
+        if (g_SystemContext.currentControlItem < CONTROL_MENU_MAX - 1) {
+            g_SystemContext.currentControlItem++;
+        }
+    } else if(key == '5') { // Toggle
+        // Toggle selected device
+        switch(g_SystemContext.currentControlItem) {
+            case CONTROL_LED_GREEN:
+                BSP_LED_Toggle(LED_GREEN_PIN);
+                g_DeviceStates.led_green = !g_DeviceStates.led_green;
                 break;
-                
-            case KEY_DOWN:      // '8' - Next item
-                if (g_SystemContext.currentControlItem < CONTROL_MENU_MAX - 1) {
-                    g_SystemContext.currentControlItem++;
-                    UART_Printf("[CONTROL] Item DOWN: %d\r\n", g_SystemContext.currentControlItem);
-                }
+            case CONTROL_LED_RED:
+                BSP_LED_Toggle(LED_RED_PIN);
+                g_DeviceStates.led_red = !g_DeviceStates.led_red;
                 break;
-                
-            case KEY_ENTER:     // '5' - Toggle selected device
-                UART_Printf("[CONTROL] Toggling item: %d\r\n", g_SystemContext.currentControlItem);
-                
-                switch (g_SystemContext.currentControlItem) {
-                    case CONTROL_LED_GREEN:
-                        Device_ToggleLED(LED_GREEN_PIN);
-                        break;
-                    case CONTROL_LED_RED:
-                        Device_ToggleLED(LED_RED_PIN);
-                        break;
-                    case CONTROL_LED_WHITE:
-                        Device_ToggleLED(LED_WHITE_PIN);
-                        break;
-                    case CONTROL_RELAY1:
-                        Device_ToggleRelay(RELAY1_PIN);
-                        break;
-                    case CONTROL_RELAY2:
-                        Device_ToggleRelay(RELAY2_PIN);
-                        break;
-                    case CONTROL_RELAY3:
-                        Device_ToggleRelay(RELAY3_PIN);
-                        break;
-                    case CONTROL_RELAY4:
-                        Device_ToggleRelay(RELAY4_PIN);
-                        break;
-                    case CONTROL_BUZZER:
-                        Device_PlayBuzzer(BEEP_SUCCESS);
-                        break;
-                    case CONTROL_LDR_AUTO:
-                        g_DeviceStates.ldr_auto_mode = !g_DeviceStates.ldr_auto_mode;
-                        UART_Printf("[CONTROL] LDR Auto Mode: %s\r\n", 
-                                    g_DeviceStates.ldr_auto_mode ? "ON" : "OFF");
-                        break;
-                    default:
-                        break;
-                }
-                
+            case CONTROL_LED_WHITE:
+                BSP_LED_Toggle(LED_WHITE_PIN);
+                g_DeviceStates.led_white = !g_DeviceStates.led_white;
+                break;
+            case CONTROL_RELAY1:
+                BSP_Relay_Toggle(RELAY1_PIN);
+                g_DeviceStates.relay1 = !g_DeviceStates.relay1;
+                break;
+            case CONTROL_RELAY2:
+                BSP_Relay_Toggle(RELAY2_PIN);
+                g_DeviceStates.relay2 = !g_DeviceStates.relay2;
+                break;
+            case CONTROL_RELAY3:
+                BSP_Relay_Toggle(RELAY3_PIN);
+                g_DeviceStates.relay3 = !g_DeviceStates.relay3;
+                break;
+            case CONTROL_RELAY4:
+                BSP_Relay_Toggle(RELAY4_PIN);
+                g_DeviceStates.relay4 = !g_DeviceStates.relay4;
+                break;
+            case CONTROL_BUZZER:
                 Device_PlayBuzzer(BEEP_SUCCESS);
-                Device_SendStatusUART();
-                break;
-                
-            case KEY_BACK:      // '*'
-                UART_Printf("[CONTROL] Back to menu.\r\n");
-                StateMachine_SetState(STATE_ACTIVE_MENU);
-                return;
-                
-            case KEY_LOGOUT:    // '#'
-                UART_Printf("[CONTROL] Logout.\r\n");
-                StateMachine_SetState(STATE_STANDBY);
-                return;
-                
-            default:
                 break;
         }
-        
-        // Update display
-        Display_UpdateLCD();
+    } else if(key == '*') {
+        g_SystemContext.currentState = STATE_ACTIVE_MENU;
+    } else if(key == '#') {
+        g_SystemContext.currentState = STATE_STANDBY;
+        g_SystemContext.isAuthenticated = false;
     }
+    BSP_Delay_ms(200);
 }
 
-/* ===== STATE: SETTINGS ===== */
-
-/**
- * @brief Settings mode - System configuration
- */
-void Handle_Settings(void)
+///* ========================================================================
+//   STATE 7: LOCKOUT MODE
+//   - Red LED + Buzzer blink 1s ON / 1s OFF for 3 cycles
+//   - Total duration: 5 seconds (configurable via LOCKOUT_TIME_SEC)
+//   - Then return to STANDBY
+//   ======================================================================== */
+void Handle_Lockout(void) 
 {
-    // Check for timeout
-    if (CheckTimeout(g_SystemContext.lastActivityTime, SCREEN_TIMEOUT_SEC * 1000)) {
-        UART_Printf("[SETTINGS] Timeout. Returning to menu.\r\n");
-        StateMachine_SetState(STATE_ACTIVE_MENU);
-        return;
+    BSP_LCD_SetCursor(0,0);
+    BSP_LCD_PrintString(" SECURITY ALERT ");
+    BSP_LCD_SetCursor(1,0);
+    BSP_LCD_PrintString(" SYSTEM LOCKED  ");
+
+    UART_Printf("[ALERT] Lockout active\r\n");
+
+    for(int i=0; i < 3; i++) {
+        BSP_LED_On(LED_RED_PIN);
+        BSP_Buzzer_On();
+        BSP_Delay_ms(500);
+        BSP_LED_Off(LED_RED_PIN);
+        BSP_Buzzer_Off();
+        BSP_Delay_ms(500);
     }
-    
-    // Get keypad input
-    char key = Keypad_GetKey();
-    if (key != KEYPAD_NO_KEY) {
-        g_SystemContext.lastActivityTime = GetSystemTick();
-        
-        switch (key) {
-            case KEY_BACK:      // '*'
-                UART_Printf("[SETTINGS] Back to menu.\r\n");
-                StateMachine_SetState(STATE_ACTIVE_MENU);
-                return;
-                
-            case KEY_LOGOUT:    // '#'
-                UART_Printf("[SETTINGS] Logout.\r\n");
-                StateMachine_SetState(STATE_STANDBY);
-                return;
-                
-            default:
-                // Settings options can be implemented here
-                break;
-        }
-    }
+
+    g_SystemContext.loginAttempts = 0;
+    g_SystemContext.currentState = STATE_STANDBY;
 }
 
-/* ===== STATE: LOCKOUT ===== */
-
 /**
- * @brief Lockout mode - Security lockout after failed attempts
+ * @brief  Performs a comprehensive Autonomous Self-Test (POST).
+ * Uses LEDs and Buzzer for physical signaling.
+ * @return 0 if Pass, Bitmask of errors if Fail.
  */
-void Handle_Lockout(void)
-{
-    // Check if lockout period has ended
-    if (GetSystemTick() >= g_SystemContext.lockoutEndTime) {
-        UART_Printf("[LOCKOUT] Lockout period ended. Returning to STANDBY.\r\n");
-        g_SystemContext.loginAttempts = 0;
-        StateMachine_SetState(STATE_STANDBY);
-        return;
-    }
-    
-    // Blink red LED
-    static uint32_t lastBlink = 0;
-    if (CheckTimeout(lastBlink, 500)) {
-        BSP_LED_Toggle(LED_RED_PIN);
-        lastBlink = GetSystemTick();
-    }
-    
-    // Display countdown
-    uint32_t remainingTime = (g_SystemContext.lockoutEndTime - GetSystemTick()) / 1000;
-    
-    static uint32_t lastUARTUpdate = 0;
-    if (CheckTimeout(lastUARTUpdate, 1000)) {
-        UART_Printf("[LOCKOUT] Time remaining: %lu seconds\r\n", remainingTime);
-        lastUARTUpdate = GetSystemTick();
-    }
-}
+uint8_t System_SelfTest(void) {
+    uint8_t error_mask = 0;
+//    char key;
+//    uint8_t key_pressed = 0;
 
+    print_Log("Peripherals SCAN");
 
+    // Toggle Green -> Red -> White -> Buzzer
+    // BSP_LED_On(LED_GREEN_PIN);
+    // BSP_Delay_1s();
+    // BSP_LED_Off(LED_GREEN_PIN);
 
-/**
- * @brief Error state - System error with auto-recovery
- */
-void Handle_Error(void)
-{
-    // Fast blink Red + White LEDs to indicate error
-    static uint32_t lastBlink = 0;
-    if (CheckTimeout(lastBlink, ERROR_BLINK_INTERVAL_MS)) {
-        BSP_LED_Toggle(LED_RED_PIN);
-        BSP_LED_Toggle(LED_WHITE_PIN);
-        lastBlink = GetSystemTick();
-    }
-    
-    // Check if recovery time has elapsed
-    if (GetSystemTick() >= g_SystemContext.errorRecoveryTime) {
-        UART_Printf("[ERROR] Recovery timeout reached. Attempting restart.\r\n");
-        System_ClearError();
-        return;
-    }
-    
-    // Display countdown on LCD
-    static uint32_t lastUpdate = 0;
-    if (CheckTimeout(lastUpdate, 1000)) {
-        uint32_t remainingTime = (g_SystemContext.errorRecoveryTime - GetSystemTick()) / 1000;
-        
-        char line2[20];
-        snprintf(line2, 20, " Restart in: %2lus", remainingTime);
-        BSP_LCD_SetCursor(1, 0);
-        BSP_LCD_PrintString(line2);
-        
-        UART_Printf("[ERROR] Auto-restart in %lu seconds\r\n", remainingTime);
-        lastUpdate = GetSystemTick();
-    }
-    
-    // Allow manual reset via keypad '#' key
-    char key = Keypad_GetKey();
-    if (key == '#') {
-        UART_Printf("[ERROR] Manual reset requested via keypad.\r\n");
-        System_ClearError();
-        return;
-    }
+    // BSP_LED_On(LED_RED_PIN);
+    // BSP_Delay_1s();
+    // BSP_LED_Off(LED_RED_PIN);
+
+    // BSP_LED_On(LED_WHITE_PIN);
+    // BSP_Delay_1s();
+    // BSP_LED_Off(LED_WHITE_PIN);
+
+    // BSP_Buzzer_On();
+    // BSP_Delay_1s();
+    // BSP_Buzzer_Off();
+
+    // print_Log(" LEDs, Buzzer OK\r\n");
+
+    /* --- TEST 2: I2C OLED (SSD1306) --- */
+//    UART_Printf("[SCAN] I2C OLED (Address 0x3C)...");
+//    if (I2C_CheckDevice(I2C1, OLED_I2C_ADDR) == 1) { // Check for ACK on I2C bus
+//    	greet();
+//    	UART_Printf(" OK\r\n");
+//    } else {
+//        UART_Printf(" NOT FOUND\r\n");
+//        error_mask |= (1 << 1);
+//    }
+    greet();
+    /* --- TEST 3: ADC Sensors (LDR1 & LDR2) --- */
+
+//     UART_Printf("[TEST] Reading LDRs for 180s...\r\n");
+//     update_lcd_display("TESTING LDR", "Check UART");
+//     for(int i = 0; i < 180; i++) {
+//         uint16_t l1 = BSP_Sensor_ReadLDR(SENSOR_LDR1_CHANNEL);
+//         uint16_t l2 = BSP_Sensor_ReadLDR(SENSOR_LDR2_CHANNEL);
+//         print_Log("L1:%u L2:%u", l1, l2);
+//         BSP_Delay_500ms();
+//     }
+
+     // 7. for keypad testing
+
+//  	UART_Printf("\r\n\r\n========================================\r\n");
+//  	UART_Printf(">> 4x4 Keypad Test Application\r\n");
+//  	UART_Printf("========================================\r\n\r\n");
+//  	UART_Printf("Keypad Layout:\r\n");
+//  	UART_Printf("  C0  C1  C2  C3\r\n");
+//  	UART_Printf("R0 1   2   3   A\r\n");
+//  	UART_Printf("R1 4   5   6   B\r\n");
+//  	UART_Printf("R2 7   8   9   C\r\n");
+//  	UART_Printf("R3 *   0   #   D\r\n\r\n");
+//  	UART_Printf("Press any key on the keypad...\r\n\r\n");
+//
+//  	while(1)
+//  	{
+//  		key = Keypad_GetKey();
+//
+//  		if(key != KEYPAD_NO_KEY)
+//  		{
+//  			UART_Printf("Key Pressed: %c\r\n", key);
+//  			key_pressed++;
+//  			UART_Printf("Key_Pressed : %d \r\n", key_pressed);
+//
+//  		}
+//  		if(key_pressed == 16){
+//  			UART_Printf(" exit from keypad : %c\r\n");
+//  			return;
+//  		}
+//  		// Small delay to avoid flooding UART
+//  		BSP_Delay_100ms();
+//  	}
+//
+//    /* --- TEST 5: Relay Matrix (Port B) --- */
+//    print_Log("[SCAN] Relay ...");
+//    // We toggle them fast so you hear a "click" during boot
+//    for(int i=1; i<=5; i++) {
+//        BSP_Delay_3s();
+//        BSP_Relay_SetState(RELAY1_PIN, RESET);
+//        BSP_Relay_SetState(RELAY2_PIN, RESET);
+//        BSP_Relay_SetState(RELAY3_PIN, RESET);
+//        BSP_Relay_SetState(RELAY4_PIN, RESET);
+//        BSP_Delay_3s();
+//        BSP_Relay_SetState(RELAY1_PIN, SET);
+//        BSP_Relay_SetState(RELAY2_PIN, SET);
+//        BSP_Relay_SetState(RELAY3_PIN, SET);
+//        BSP_Relay_SetState(RELAY4_PIN, SET);
+//    }
+//    UART_Printf(" OK\r\n");
+//
+//    /* --- FINAL EVALUATION --- */
+//    if (error_mask == 0) {
+//        UART_Printf(">> STATUS: ALL PERIPHERALS HEALTHY\r\n\r\n");
+//        // Success Tone
+//        Device_PlayBuzzer(BEEP_SUCCESS);
+//    } else {
+//        UART_Printf(">> STATUS: FATAL HARDWARE ERROR (Code: 0x%X)\r\n", error_mask);
+//        GPIO_WriteToOutputPin(LED_PORT, LED_RED_PIN, SET); // Solid RED for failure
+//        Device_PlayBuzzer(BEEP_ERROR);
+//    }
+    print_Log("TEST COMPLETE");
+    return error_mask;
 }

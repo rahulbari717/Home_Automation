@@ -48,18 +48,6 @@
 #define LED_RED_PIN         		GPIO_PIN_NO_6
 #define LED_WHITE_PIN         		GPIO_PIN_NO_7
 
-/* ===== DS18B20 Configuration ===== */
-#define DS18B20_PORT                GPIOA
-#define DS18B20_PIN                 GPIO_PIN_NO_8
-
-/* ===== BLUETOOTH HC-05 (USART1) ===== */
-//#define BT_USART_PORT           	GPIOA
-//#define BT_TX_PIN               	GPIO_PIN_NO_9   // USART1_TX (AF7)
-//#define BT_RX_PIN               	GPIO_PIN_NO_10  // USART1_RX (AF7)
-//#define BT_USART                	USART1
-//#define BT_USART_AF             	7
-//#define BT_BAUD_RATE            	9600
-
 /* ===== KEYPAD PIN CONFIGURATION ===== */
 /* 4x4 Matrix Keypad Layout:
  *        C0    C1    C2    C3
@@ -89,16 +77,6 @@
 #define OLED_SDA_PIN                GPIO_PIN_NO_9  // I2C1_SDA (AF4)
 #define OLED_I2C                    I2C1
 #define OLED_I2C_AF                 4              // Alternate Function 4
-
-/* ===== MOTION/PROXIMITY SENSORS ===== */
-// RCWL-0516 Microwave Radar (3.3V output - SAFE)
-#define RCWL_PORT               	GPIOB
-#define RCWL_PIN                	GPIO_PIN_NO_10
-
-/* ===== KY-028 Configuration ===== */
-// #define KY028_DIGITAL_PORT          GPIOB
-// #define KY028_DIGITAL_PIN           GPIO_PIN_NO_11
-// #define TEMP_ALARM_THRESHOLD        28  // Degrees Celsius
 
 // Relays (with transistor buffers)
 #define RELAY_PORT                  GPIOB
@@ -150,3 +128,6 @@
 #define MENU_ITEMS_PER_SCREEN       2
 
 #endif /* INC_CONFIG_H_ */
+
+
+

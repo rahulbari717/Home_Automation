@@ -31,9 +31,6 @@ Use this table to **visually trace and validate each physical pin** during testi
 | LED Green               | GPIOA    | PA5    | LED_GREEN          | GPIO Output      | High = ON                                     |
 | LED Red                 | GPIOA    | PA6    | LED_RED            | GPIO Output      | High = ON                                     |
 | LED White               | GPIOA    | PA7    | LED_WHITE          | GPIO Output      | High = ON                                     |
-| DS18B20 Data            | GPIOA    | PA8    | 1-Wire Data        | GPIO Open-Drain  | Temp read pulse train                         |
-| Bluetooth TX            | GPIOA    | PA9    | USART1_TX          | AF7              | Serial TX output                              |
-| Bluetooth RX            | GPIOA    | PA10   | USART1_RX          | AF7              | Serial RX input                               |
 | Keypad Row 0            | GPIOB    | PB0    | R0                 | GPIO Output      | Scan line toggles                             |
 | Keypad Row 1            | GPIOB    | PB1    | R1                 | GPIO Output      | Scan line toggles                             |
 | Keypad Row 2            | GPIOB    | PB2    | R2                 | GPIO Output      | Scan line toggles                             |
@@ -44,8 +41,6 @@ Use this table to **visually trace and validate each physical pin** during testi
 | Keypad Column 3         | GPIOB    | PB7    | C3                 | GPIO Input PU    | Reads LOW on key press                       |
 | OLED SCL                | GPIOB    | PB8    | I2C1_SCL           | AF4              | Clock pulses ~100 kHz                         |
 | OLED SDA                | GPIOB    | PB9    | I2C1_SDA           | AF4              | Data line toggles                             |
-| RCWL Radar Sensor       | GPIOB    | PB10   | RCWL_OUT           | GPIO Input       | High on motion                               |
-| // reomove this KY-028 Digital          | GPIOB    | PB11   | TEMP_ALARM         | GPIO Input       | High when threshold crossed                  |
 | Relay 1                 | GPIOB    | PB12   | RELAY1             | GPIO Output      | High = ON                                     |
 | Relay 2                 | GPIOB    | PB13   | RELAY2             | GPIO Output      | High = ON                                     |
 | Relay 3                 | GPIOB    | PB14   | RELAY3             | GPIO Output      | High = ON                                     |

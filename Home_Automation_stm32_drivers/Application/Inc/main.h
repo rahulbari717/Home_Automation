@@ -9,7 +9,6 @@
 #define INC_MAIN_H_
 
 /* 1. Standard C Libraries (Optional but useful) */
-#include <bsp_ir_sensors.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -46,5 +45,13 @@
 #include "bsp_delay.h"
 #include "bsp_uart2_debug.h"
 #include "bsp_button.h"
+
+#include "state_machine.h"
+
+/* ===== Macros & Constants ===== */
+#define MASTER_PIN          		"1234"
+#define LDR_AUTO_THRESHOLD  		3500
+#define AUTH_TIMEOUT_MS     		30000
+#define LOCKOUT_DURATION_MS 		5000  // 5s for testing, 30s for production
 
 #endif /* INC_MAIN_H_ */

@@ -5,17 +5,16 @@
  */
 
 #include "bsp_lcd.h"
-#include "stm32f446xx_timer_driver.h" // For delays
+#include "bsp_delay.h"// For delays
 
 // Private Helper: Pulse the Enable Pin
 static void LCD_EnablePulse(void)
 {
     GPIO_WriteToOutputPin(LCD_CTRL_PORT, LCD_EN_PIN, 1);
-    // Tiny delay (~10us) needed for LCD to latch data
-    for(volatile int i=0; i<500; i++);
+    BSP_Delay_us(50); // Increased from 10us to 50us for stability
     GPIO_WriteToOutputPin(LCD_CTRL_PORT, LCD_EN_PIN, 0);
+    BSP_Delay_us(50); // Added delay after pulse to let LCD think
 }
-
 // Private Helper: Send 4 bits to D4-D7
 void LCD_Write4Bits(uint8_t nibble)
 {
@@ -39,13 +38,17 @@ static void LCD_Send(uint8_t value, uint8_t is_data)
 
     // 3. Send Low Nibble
     LCD_Write4Bits(value & 0x0F);
+
+    BSP_Delay_us(100); 
 }
 
 
 void BSP_LCD_SendCommand(uint8_t cmd) {
     LCD_Send(cmd, 0);
     // Clear command needs more time
-    if(cmd == LCD_CMD_CLEAR) for(volatile int i=0; i<50000; i++);
+    if(cmd == LCD_CMD_CLEAR || cmd == 0x02) {
+        BSP_Delay_ms(2); 
+    }
 }
 
 void BSP_LCD_SendData(uint8_t data) {
@@ -95,17 +98,28 @@ void BSP_LCD_Init(void)
 
     // 2. LCD Startup Sequence
     // Wait >15ms after power up
-    for(volatile int i=0; i<50000; i++);
+//    for(volatile int i=0; i<50000; i++);
+    BSP_Delay_ms(50); // Wait >40ms after power up
 
     // Initialize in 4-bit mode
     GPIO_WriteToOutputPin(LCD_CTRL_PORT, LCD_RS_PIN, 0);
 
-    LCD_Write4Bits(0x03); // Wake up 1
-    for(volatile int i=0; i<10000; i++);
-    LCD_Write4Bits(0x03); // Wake up 2
-    for(volatile int i=0; i<5000; i++);
-    LCD_Write4Bits(0x03); // Wake up 3
-    LCD_Write4Bits(0x02); // Set to 4-bit mode
+    LCD_Write4Bits(0x03);
+    BSP_Delay_ms(5);
+
+// Second attempt
+    LCD_Write4Bits(0x03);
+    BSP_Delay_us(200);
+
+    // Third attempt
+    LCD_Write4Bits(0x03);
+    BSP_Delay_us(200);
+
+    // Finally switch to 4-bit mode
+    LCD_Write4Bits(0x02);
+    BSP_Delay_ms(2); 
+
+
 
     // 3. Configure Settings
     BSP_LCD_SendCommand(LCD_CMD_FUNCTION_SET); // 4-bit, 2 lines

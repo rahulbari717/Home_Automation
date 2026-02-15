@@ -259,4 +259,7 @@ void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnorDi);
  */
 void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t AppEv);
 
+uint8_t I2C_CheckDevice(I2C_RegDef_t *pI2Cx, uint8_t SlaveAddr);
+
+
 #endif /* INC_STM32F446XX_I2C_DRIVER_H_ */

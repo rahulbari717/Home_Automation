@@ -28,7 +28,7 @@
 
 /* Initializes I2C1 GPIOs and the SSD1306 Display */
 void BSP_OLED_Init(void);
-
+void greet(void);
 /* Clears the screen buffer (does not update display immediately) */
 void BSP_OLED_Clear(void);
 

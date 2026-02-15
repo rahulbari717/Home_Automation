@@ -8,22 +8,6 @@
 #include "bsp_relay.h"
 
 /* ===== Relay Initialization ===== */
-//void Relay_Init(void) {
-//    GPIO_Handle_t relay_gpio;
-//
-//    relay_gpio.pGPIOx = RELAY_PORT;
-//    relay_gpio.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
-//    relay_gpio.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
-//    relay_gpio.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
-//    relay_gpio.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
-//
-//    const uint8_t relay_pins[4] = {RELAY1_PIN, RELAY2_PIN, RELAY3_PIN, RELAY4_PIN};
-//    for(int i = 0; i < 4; i++) {
-//        relay_gpio.GPIO_PinConfig.GPIO_PinNumber = relay_pins[i];
-//        GPIO_Init(&relay_gpio);
-//        GPIO_WriteToOutputPin(RELAY_PORT, relay_pins[i], GPIO_PIN_RESET);
-//    }
-//}
 
 void BSP_Relay_Init(void) {
     GPIO_Handle_t relay;
@@ -37,7 +21,9 @@ void BSP_Relay_Init(void) {
     for(int i = 0; i < 4; i++) {
         relay.GPIO_PinConfig.GPIO_PinNumber = pins[i];
         GPIO_Init(&relay);
-        GPIO_WriteToOutputPin(RELAY_PORT, pins[i], GPIO_PIN_RESET);
+        // relay is also working on active low logic here
+        GPIO_WriteToOutputPin(RELAY_PORT, pins[i], GPIO_PIN_SET);
+
     }
 }
 

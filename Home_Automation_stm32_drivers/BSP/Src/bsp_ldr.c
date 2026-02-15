@@ -8,7 +8,6 @@
 #include <bsp_ldr.h>
 #include "config.h"
 
-
 /* ===== LDR/ADC Initialization ===== */
 void BSP_LDR_init(void) {
     GPIO_Handle_t ldr_pins;

@@ -965,3 +965,57 @@ static void I2C_MasterHandleRXNEInterrupt(I2C_Handle_t *pI2CHandle) {
         I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_RX_CMPLT); 
     }
 }
+
+/*********************************************************************
+ * @fn              - I2C_CheckDevice
+ *
+ * @brief           - Checks whether a slave device is present on I2C bus
+ *
+ * @param[in]       - pI2Cx     : Base address of I2C peripheral
+ * @param[in]       - SlaveAddr : 7-bit slave address
+ *
+ * @return          - 1 → Device ACKed (Present)
+ *                    0 → No ACK (Not Present)
+ *********************************************************************/
+uint8_t I2C_CheckDevice(I2C_RegDef_t *pI2Cx, uint8_t SlaveAddr)
+{
+    uint8_t ackStatus = 0;
+
+    /* 1. Generate START */
+    I2C_GenerateStartCondition(pI2Cx);
+
+    /* 2. Wait for SB flag */
+    while(!I2C_GetFlagStatus(pI2Cx, I2C_FLAG_SB));
+
+    /* 3. Send address with WRITE bit */
+    I2C_ExecuteAddressPhaseWrite(pI2Cx, SlaveAddr);
+
+    /* 4. Wait until ADDR or AF (ACK failure) */
+    while( !(pI2Cx->SR1 & (1 << I2C_SR1_ADDR)) &&
+           !(pI2Cx->SR1 & (1 << I2C_SR1_AF)) );
+
+    /* 5. Check if ACK received */
+    if(pI2Cx->SR1 & (1 << I2C_SR1_ADDR))
+    {
+        /* Device responded */
+        ackStatus = 1;
+
+        /* Clear ADDR flag */
+        I2C_ClearADDRFlag(pI2Cx);
+    }
+
+    /* 6. If ACK failure */
+    if(pI2Cx->SR1 & (1 << I2C_SR1_AF))
+    {
+        /* Clear AF flag */
+        pI2Cx->SR1 &= ~(1 << I2C_SR1_AF);
+        ackStatus = 0;
+    }
+
+    /* 7. Generate STOP */
+    I2C_GenerateStopCondition(pI2Cx);
+
+    return ackStatus;
+}
+
+

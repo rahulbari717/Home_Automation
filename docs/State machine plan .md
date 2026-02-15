@@ -17,13 +17,9 @@ typedef enum {
 ### Sub-State Enumeration for Menu Navigation
 ```c
 typedef enum {
-    MENU_MAIN,
-    MENU_SENSORS,
-    MENU_CONTROLS,
-    MENU_LDR_CONTROL,
-    MENU_RELAY_CONTROL,
-    MENU_BUZZER_CONTROL,
-    MENU_SETTINGS
+    SUB_MENU_MAIN,
+    SUB_MENU_RELAYS,
+    SUB_MENU_LEDS
 } MenuState_t;
 ```
 
@@ -39,7 +35,6 @@ typedef enum {
 ┌─────────────────────┐
 │ STATE: STANDBY      │
 │ User: [None]        │
-│ Time: 12:45:30      │
 └─────────────────────┘
 ```
 
