@@ -177,18 +177,6 @@ LDR1: 450 (45%)
 LDR2: 320 (32%)
 ```
 
-**Screen 2: Temperature**
-```
-Temp: 25.3°C
-Status: NORMAL
-```
-
-**Screen 3: Motion/Proximity**
-```
-Motion: DETECTED
-IR1:Y  
-```
-
 **Active Operations:**
 - Read LDR1 (PA0/ADC1_CH0) every 500ms
 - Read LDR2 (PA1/ADC1_CH1) every 500ms
@@ -469,10 +457,7 @@ CMD:MONITOR,PARAM:START
 |--------|-------------|---------|
 | LDR1 (PA0) | 500ms | LCD + UART |
 | LDR2 (PA1) | 500ms | LCD + UART |
-| DS18B20 (PA8) | 5000ms | OLED + LCD + UART |
-| RCWL (PB10) | Interrupt | All |
-| IR1 (PC6) | 100ms | LCD + UART |
-| IR2 (PC8) | 100ms | LCD + UART |
+
 
 ### Priority System
 1. **Critical:** Motion detection (security)
@@ -654,13 +639,21 @@ typedef enum {
 ## SUMMARY
 
 This plan provides a complete state machine architecture with:
+
 ✅ Clear state definitions and transitions
+
 ✅ OLED for state display only
+
 ✅ LCD for sensor readings and device control
+
 ✅ Comprehensive UART monitoring
+
 ✅ Switch-case implementation structure
+
 ✅ Sensor integration schedule
+
 ✅ Device control logic
+
 ✅ Security features
 
 **Next Steps:**

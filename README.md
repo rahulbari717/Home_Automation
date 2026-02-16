@@ -1,4 +1,4 @@
-# Smart Home Automation System - (STM32F446RE)
+# 🏠 Smart Home Automation System (STM32F446RE)
 
 ![Platforms](https://img.shields.io/badge/Platforms-STM32%20%7C%20ESP32-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-Distributed%20%7C%20CAN%20%7C%20SPI-orange)
@@ -7,12 +7,12 @@
 
 **A bare-metal embedded home automation system with finite state machine architecture, featuring multi-sensor monitoring, device control, and secure keypad authentication.**
 
-
 ## 📋 Project Overview
 
 This project implements a complete home automation controller using **STM32F446RE Nucleo-64** microcontroller. The system features a hierarchical finite state machine (FSM) for secure access control, real-time sensor monitoring, and automated device management—all without HAL or RTOS dependencies, using pure register-level drivers for maximum efficiency.
 
 ### Key Highlights
+
 - ✅ **Bare-metal architecture** - Direct register access for all peripherals
 - ✅ **Security-first design** - PIN authentication with lockout protection
 - ✅ **State machine based** - Clean, maintainable FSM architecture
@@ -36,7 +36,7 @@ This project implements a complete home automation controller using **STM32F446R
          ▼                          │
 ┌─────────────────┐                 │
 │ AUTHENTICATING  │────────────────►┤
-│  (PIN Entry)    │    Invalid      │
+│  (PIN Entry)    │  (3 * Invalid)  │
 └────────┬────────┘                 │
          │                          │
          │ Valid PIN                │
@@ -53,45 +53,47 @@ This project implements a complete home automation controller using **STM32F446R
 
 ### State Definitions
 
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|----------------|----------------|
-| **STANDBY** | Low-power waiting mode | System boot / Logout | Motion detected / Key pressed |
-| **AUTHENTICATING** | PIN verification | User trigger from STANDBY | Valid PIN / 3 failed attempts |
-| **ACTIVE_MENU** | Main menu navigation | Successful authentication | User logout / Timeout |
-| **SENSOR_MONITOR** | Live sensor data display | Selected from menu | Back button / Timeout |
-| **CONTROL_DEVICES** | Device control interface | Selected from menu | Back button / Timeout |
-| **SETTINGS** | Configuration menu | Selected from menu | Back button / Timeout |
-| **LOCKOUT** | Security lockout (5 sec) | 3 failed login attempts | Timer expires |
-
+| State               | Description              | Entry Condition           | Exit Condition                |
+| ------------------- | ------------------------ | ------------------------- | ----------------------------- |
+| **STANDBY**         | Low-power waiting mode   | System boot / Logout      | Motion detected / Key pressed |
+| **AUTHENTICATING**  | PIN verification         | User trigger from STANDBY | Valid PIN / 3 failed attempts |
+| **ACTIVE_MENU**     | Main menu navigation     | Successful authentication | User logout / Timeout         |
+| **SENSOR_MONITOR**  | Live sensor data display | Selected from menu        | Back button / Timeout         |
+| **CONTROL_DEVICES** | Device control interface | Selected from menu        | Back button / Timeout         |
+| **SETTINGS**        | for future used          |                           |                               |
+| **LOCKOUT**         | Security lockout (5 sec) | 3 failed login attempts   | Timer expires                 |
 
 ### Input Devices
-| Component | Interface | Pins | Purpose |
-|-----------|-----------|------|---------|
-| 4x4 Matrix Keypad | GPIO | PB0-PB7 | User input & navigation |
-| User Button | GPIO + EXTI | PC13 | System wakeup |
-| LDR Sensors (×2) | ADC | PA0, PA1 | Ambient light sensing |
-| IR Proximity (×1) | GPIO | PC6 | Obstacle detection |
+
+| Component         | Interface   | Pins     | Purpose                 |
+| ----------------- | ----------- | -------- | ----------------------- |
+| 4x4 Matrix Keypad | GPIO        | PB0-PB7  | User input & navigation |
+| User Button       | GPIO + EXTI | PC13     | System wakeup           |
+| LDR Sensors (×2)  | ADC         | PA0, PA1 | Ambient light sensing   |
+| IR Proximity (×1) | GPIO        | PC6      | Obstacle detection      |
 
 ### Output Devices
-| Component | Interface | Pins | Purpose |
-|-----------|-----------|------|---------|
-| LCD 16x2 | GPIO (4-bit) | PC0-PC5 | Interactive display |
-| OLED 128x64 | I2C | PB8, PB9 | Status display |
-| LEDs (×3) | GPIO | PA5-PA7 | Visual indicators |
-| Relays (×4) | GPIO | PB12-PB15 | High-power device control |
-| Buzzer | GPIO | PA4 | Audio feedback |
+
+| Component   | Interface    | Pins      | Purpose                   |
+| ----------- | ------------ | --------- | ------------------------- |
+| LCD 16x2    | GPIO (4-bit) | PC0-PC5   | Interactive display       |
+| OLED 128x64 | I2C          | PB8, PB9  | Status display            |
+| LEDs (×3)   | GPIO         | PA5-PA7   | Visual indicators         |
+| Relays (×4) | GPIO         | PB12-PB15 | High-power device control |
+| Buzzer      | GPIO         | PA4       | Audio feedback            |
 
 ### Communication
-| Interface | Pins | Purpose |
-|-----------|------|---------|
-| USART2 | PA2, PA3 | Debug console (115200 baud) |
+
+| Interface | Pins     | Purpose                     |
+| --------- | -------- | --------------------------- |
+| USART2    | PA2, PA3 | Debug console (115200 baud) |
 
 ---
-
 
 ## 📊 Complete Pin Mapping
 
 ### PORT A (Sensors & Communication)
+
 ```
 PA0  → LDR1 (ADC1_CH0)           - Light sensor 1
 PA1  → LDR2 (ADC1_CH1)           - Light sensor 2
@@ -105,6 +107,7 @@ PA7  → LED White                 - Status/ambient light
 ```
 
 ### PORT B (Keypad, I2C, Relays)
+
 ```
 PB0  → Keypad Row 0              - Scan line (Output)
 PB1  → Keypad Row 1              - Scan line (Output)
@@ -123,6 +126,7 @@ PB15 → Relay 4                   - Garden sprinkler
 ```
 
 ### PORT C (LCD & Sensors)
+
 ```
 PC0  → LCD RS                    - Register select
 PC1  → LCD EN                    - Enable pulse
@@ -140,205 +144,12 @@ PC13 → Wakeup Button             - System wakeup (EXTI)
 
 ```
 Home_Automation/
-├── docs/                           # Documentation
-│   ├── FRS.md                      # Functional Requirements Specification
-│   ├── Project_summary.md          # Project overview
-│   ├── State_machine_plan.md       # State machine design
-│   ├── roadmap_plan.md             # Development roadmap
-│   ├── test_cases.md               # Test plan & validation
-│   ├── Quick_ref.md                # Quick reference guide
-│   └── stm32f446re.jpg             # Pinout reference image
-│
-├── Home_Automation_stm32_drivers/  # Main firmware directory
-│   ├── Application/                # Example/test programs
-│   │   ├── Inc/
-│   │   │   └── main.h
-│   │   └── Src/
-│   │       ├── 001_LedToggle.c     # Basic GPIO examples
-│   │       ├── 005_UART_TX.c       # Communication examples
-│   │       ├── 020_oled_i2c.c      # Display examples
-│   │       └── ... (29 examples total)
-│   │
-│   ├── BSP/                        # Board Support Package
-│   │   ├── Inc/
-│   │   │   ├── bsp_init.h          # System initialization
-│   │   │   ├── bsp_led.h           # LED control
-│   │   │   ├── bsp_button.h        # Button handling
-│   │   │   ├── bsp_buzzer.h        # Buzzer control
-│   │   │   ├── bsp_relay.h         # Relay control
-│   │   │   ├── bsp_keypad.h        # Keypad scanning
-│   │   │   ├── bsp_lcd.h           # LCD driver (4-bit mode)
-│   │   │   ├── bsp_i2c_oled.h      # OLED driver (I2C)
-│   │   │   ├── bsp_sensors.h       # Sensor interfaces
-│   │   │   ├── bsp_ldr.h           # LDR sensor
-│   │   │   ├── bsp_ds18b20.h       # Temperature sensor
-│   │   │   ├── bsp_uart2_debug.h   # Debug UART
-│   │   │   ├── bsp_delay.h         # Timing utilities
-│   │   │   └── config.h            # Hardware configuration
-│   │   └── Src/
-│   │       └── ... (BSP implementations)
-│   │
-│   ├── Drivers/                    # MCU Peripheral Drivers
-│   │   ├── Inc/
-│   │   │   ├── stm32f446xx.h       # MCU register definitions
-│   │   │   ├── stm32f446xx_gpio_driver.h
-│   │   │   ├── stm32f446xx_usart_driver.h
-│   │   │   ├── stm32f446xx_i2c_driver.h
-│   │   │   ├── stm32f446xx_adc_driver.h
-│   │   │   ├── stm32f446xx_timer_driver.h
-│   │   │   ├── stm32f446xx_dma_driver.h
-│   │   │   ├── stm32f446xx_rtc_driver.h
-│   │   │   ├── stm32f446xx_iwdg_driver.h
-│   │   │   ├── stm32f446xx_rcc_driver.h
-│   │   │   └── stm32f446xx_fault_handler.h
-│   │   └── Src/
-│   │       └── ... (Driver implementations)
-│   │
-│   ├── Inc/                        # Application headers
-│   │   └── state_machine.h         # State machine declarations
-│   │
-│   ├── Src/                        # Application source
-│   │   ├── main.c                  # Application entry point
-│   │   ├── state_machine.c         # FSM core logic
-│   │   ├── state_handlers.c        # State handler functions
-│   │   ├── auth_menu.c             # Authentication & menus
-│   │   ├── sensors.c               # Sensor management
-│   │   ├── devices.c               # Device control
-│   │   ├── display.c               # Display updates
-│   │   ├── peripheral_test.c       # Hardware tests
-│   │   ├── stm32f446xx_it.c        # Interrupt handlers
-│   │   ├── syscalls.c              # System calls
-│   │   └── sysmem.c                # Memory management
-│   │
-│   ├── Startup/
-│   │   └── startup_stm32f446retx.s # Startup code
-│   │
-│   ├── STM32F446RETX_FLASH.ld      # Linker script (Flash)
-│   └── STM32F446RETX_RAM.ld        # Linker script (RAM)
-│
-├── .gitignore                      # Git ignore rules
-├── LICENSE                         # MIT License
-└── README.md                       # This file
-```
+└── docs/        # Functional specs and test plans
+├── Application/ # Hardware test cases and examples
+├── BSP/         # Board Support Package (LCD, Keypad, etc.)
+├── Drivers/     # Register-level peripheral drivers
+├── Src/         # FSM Core and State Handlers
 
-
-
----
-
-## ⚙️ Key Features
-
-### 1. 🔐 Security & Authentication
-- **PIN-based Access Control**
-  - 4-digit PIN entry via keypad
-  - Multiple user support (5 default users)
-  - Master PIN override capability
-- **Lockout Protection**
-  - 3 failed attempts → 10-second security lockout
-  - Buzzer alarm during lockout
-  - Automatic return to standby after lockout
-- **Session Management**
-  - 30-second inactivity timeout
-  - Secure logout with device shutdown
-  - State persistence during session
-
-### 2. 📊 Sensor Monitoring
-- **Light Sensing (LDR)**
-  - Dual LDR sensors (0-4095 ADC range)
-  - Ambient light percentage calculation
-  - Auto-lighting trigger threshold: 200 (darkness)
-- **Proximity Detection**
-  - IR sensor
-  - Obstacle detection
-  - Event logging via UART
-
-### 3. 🎛️ Device Control
-- **Manual Control Mode**
-  - LED indicators (Green/Red/White)
-  - 4-channel relay bank
-  - Individual device toggle via menu
-- **LDR Auto Mode**
-  - Automatic lighting based on ambient light
-  - LDR1 > 4000 → Relay1 ON
-  - LDR2 > 4000 → Relay2 ON 
-  - Enable/disable via control menu
-- **Buzzer Patterns**
-  - Success beep (short)
-  - Error beep (toggle)
-
-### 4. 📺 Display System
-- **OLED (Status Display)**
-  ```
-  STATE: ACTIVE_MENU
-  User: Rahul
-  Motion: None
-  ```
-  - Shows current system state
-  - Active user name
-  - Motion sensor status
-  - Updates every 1 second
-
-- **LCD (Interactive Display)**
-  - **Standby Mode:**
-    ```
-    System Ready
-    Press Any Key
-    ```
-  - **Authentication:**
-    ```
-    Enter PIN:
-    ****_
-    ```
-  - **Main Menu:**
-    ```
-    >1.Sensor Monitor
-     2.Device Control
-    ```
-  - **Sensor Screens (Auto-cycling every 2s):**
-    ```
-    LDR1: 450 (45%)
-    LDR2: 320 (32%)
-    
-    Motion: YES
-    IR1:Y  
-    ```
-  - **Device Control:**
-    ```
-    >LED Green: ON
-     LED Red: OFF
-    ```
-
-### 5. 🎮 Keypad Navigation
-
-**Keypad Layout:**
-```
-┌───┬───┬───┬───┐
-│ 1 │ 2 │ 3 │ A │
-├───┼───┼───┼───┤
-│ 4 │ 5 │ 6 │ B │
-├───┼───┼───┼───┤
-│ 7 │ 8 │ 9 │ C │
-├───┼───┼───┼───┤
-│ * │ 0 │ # │ D │
-└───┴───┴───┴───┘
-```
-
-**Navigation Keys:**
-- `2` → UP (Navigate up / Previous screen)
-- `8` → DOWN (Navigate down / Next screen)
-- `5` → ENTER (Select / Toggle device)
-- `*` → BACK (Return to previous menu)
-- `#` → LOGOUT (Return to standby & lock system)
-
-### 6. 🔍 UART Monitoring
-Complete system diagnostics via USART2 (115200 baud):
-```
-[STATE] STANDBY → AUTHENTICATING
-[AUTH] User 'Rahul' login attempt
-[AUTH] PIN verified - Access granted
-[STATE] AUTHENTICATING → ACTIVE_MENU
-[SENSOR] LDR1:450, LDR2:320
-[DEVICE] LED_GREEN toggled ON
-[CONTROL] Relay1 activated
 ```
 
 ---
@@ -348,6 +159,7 @@ Complete system diagnostics via USART2 (115200 baud):
 ### Prerequisites
 
 **Hardware:**
+
 - STM32F446RE Nucleo-64 board
 - USB cable (for programming & debug UART)
 - All components listed in hardware section
@@ -355,6 +167,7 @@ Complete system diagnostics via USART2 (115200 baud):
 - Power supply (5V for relays, 3.3V/5V for sensors)
 
 **Software:**
+
 - **STM32CubeIDE 1.18.0** or later
 - **ARM GCC Toolchain** (bundled with CubeIDE)
 - **OpenOCD** or **ST-Link Utilities** (for flashing)
@@ -363,6 +176,7 @@ Complete system diagnostics via USART2 (115200 baud):
 ### Installation Steps
 
 1. **Clone Repository**
+
    ```bash
    git clone https://github.com/rahulbari717/Home_Automation.git
    cd Home_Automation
@@ -381,26 +195,31 @@ Complete system diagnostics via USART2 (115200 baud):
      - Release: `-O2` (size optimization)
 
 4. **Build Project**
+
    ```
    Project → Build Project (Ctrl+B)
    ```
 
 5. **Flash to Board**
+
    ```
    Run → Debug (F11)
    ```
+
    Or using command line:
+
    ```bash
    openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
            -c "program build/Home_Automation.elf verify reset exit"
    ```
 
 6. **Open Serial Monitor**
+
    ```bash
    # Linux
    minicom -D /dev/ttyACM0 -b 115200
 
-   
+
    # Windows (PuTTY)
    COM Port: COMx (check Device Manager)
    Baud: 115200
@@ -411,6 +230,7 @@ Complete system diagnostics via USART2 (115200 baud):
 ## 📖 Usage Guide
 
 ### System Startup Sequence
+
 ```
 [Power ON]
     ↓
@@ -430,18 +250,19 @@ Complete system diagnostics via USART2 (115200 baud):
 ```
 
 ### Authentication Flow
+
 ```
 [STANDBY] → Motion detected OR Key pressed
           → [AUTHENTICATING]
           → LCD shows: "Enter PIN: ____"
           → User enters 4-digit PIN
           → System verifies PIN against database
-          
+
           ✓ Valid PIN:
             → Green LED ON + Success beep
             → [ACTIVE_MENU]
             → OLED shows username
-            
+
           ✗ Invalid PIN:
             → Red LED ON + Error beep
             → Retry (max 3 attempts)
@@ -449,6 +270,7 @@ Complete system diagnostics via USART2 (115200 baud):
 ```
 
 ### Main Menu Navigation
+
 ```
 ACTIVE_MENU:
 ┌────────────────────────┐
@@ -460,13 +282,14 @@ ACTIVE_MENU:
 
 Actions:
 - Press '2' to move down
-- Press '8' to move up  
+- Press '8' to move up
 - Press '5' to select
 - Press '*' to back
 - Press '#' to logout
 ```
 
 ### Sensor Monitoring (Auto-Cycle Screens)
+
 ```
 Screen 1 (2 seconds):
 ┌────────────────────────┐
@@ -485,6 +308,7 @@ Screen 3 (2 seconds):
 ```
 
 ### Device Control
+
 ```
 ┌────────────────────────┐
 │ >LED Green: ON         │  ← Toggle with '5'
@@ -502,6 +326,7 @@ Actions:
 ```
 
 ### LDR Auto Mode
+
 ```
 When LDR Auto Mode is ENABLED:
 
@@ -525,14 +350,13 @@ When LDR Auto Mode is ENABLED:
 
 ## 👥 Default User Database
 
-| Username | PIN  | Access Level |
-|----------|------|--------------|
-| Rahul    | 1234 | Full access  |
-| Admin    | 0000 | Administrator|
-| User1    | 1111 | Standard     |
-| User2    | 2222 | Standard     |
-| Guest    | 9999 | Limited      |
-
+| Username | PIN  | Access Level  |
+| -------- | ---- | ------------- |
+| Rahul    | 1234 | Full access   |
+| Admin    | 0000 | Administrator |
+| User1    | 1111 | Standard      |
+| User2    | 2222 | Standard      |
+| Guest    | 9999 | Limited       |
 
 ---
 
@@ -562,20 +386,6 @@ Contributions are welcome! Please:
 5. Open a Pull Request
 
 ---
-
-## 📊 Project Status
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **STM32 Core** | ✅ Complete | Bare-metal FSM working |
-| **Authentication** | ✅ Complete | PIN system with lockout |
-| **Sensors** | ✅ Partial | LDR + IR working |
-| **Displays** | ✅ Complete | OLED + LCD working |
-| **Control** | ✅ Complete | LEDs + Relays working |
-| **Self-Test** | ✅ Complete | Boot diagnostics working |
-| **ESP32 Gateway** | 🚧 Planned | Q2 2026 |
-| **BLE/WiFi** | 🚧 Planned | Q2 2026 |
-| **MQTT Cloud** | 🚧 Planned | Q3 2026 |
 
 ## 📄 License
 
@@ -629,4 +439,4 @@ If you find this project helpful:
 
 ---
 
-*Built with ❤️ for the embedded systems community # Smart Home Automation System - STM32F446RE
+\*Built with ❤️ for the embedded systems community # Smart Home Automation System - STM32F446RE
