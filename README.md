@@ -7,6 +7,87 @@
 
 **A bare-metal embedded home automation system with finite state machine architecture, featuring multi-sensor monitoring, device control, and secure keypad authentication.**
 
+## 📺 System Demonstration
+
+### Hardware Setup
+
+<p align="center">
+  <img src="docs/media/Hardware_setup.jpeg" width="45%" alt="STM32 Board"/>
+  <img src="docs/media/Hardware.jpeg" width="45%" alt="Complete Setup"/>
+</p>
+<p align="center">
+  <em>STM32F446RE Nucleo-64 with all peripherals on breadboard</em>
+</p>
+
+---
+
+### Live System Videos
+
+**Click thumbnails to watch demonstrations:**
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/1.mp4">
+        <img src="docs/media/1_thumb.jpg" width="100%" alt="Video 1"/>
+      </a>
+      <br/>
+      <b>📹 Video 1</b>
+    </td>
+    <td align="center" width="33%">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/2_terminal_peek.mp4">
+        <img src="docs/media/2_thumb.jpg" width="100%" alt="Terminal Peek"/>
+      </a>
+      <br/>
+      <b>📹 Video 2: Serial Debug</b>
+    </td>
+    <td align="center" width="33%">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/3_relay_testing.mp4">
+        <img src="docs/media/3_thumb.jpg" width="100%" alt="Relay Testing"/>
+      </a>
+      <br/>
+      <b>📹 Video 3: Relay Testing</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/4.mp4">
+        <img src="docs/media/4_thumb.jpg" width="100%" alt="Video 4"/>
+      </a>
+      <br/>
+      <b>📹 Video 4</b>
+    </td>
+    <td align="center">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/5_ir_pin_entry.mp4">
+        <img src="docs/media/5_thumb.jpg" width="100%" alt="PIN Entry"/>
+      </a>
+      <br/>
+      <b>📹 Video 5: PIN Authentication</b>
+    </td>
+    <td align="center">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/6_device_control.mp4">
+        <img src="docs/media/6_thumb.jpg" width="100%" alt="Device Control"/>
+      </a>
+      <br/>
+      <b>📹 Video 6: Device Control</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/7_pin_sensor_monitoring.mp4">
+        <img src="docs/media/7_thumb.jpg" width="100%" alt="Sensor Monitor"/>
+      </a>
+      <br/>
+      <b>📹 Video 7: Sensor Monitoring</b>
+    </td>
+    <td colspan="2"></td>
+  </tr>
+</table>
+
+*Click any thumbnail above to download and play the full video demonstration*
+
+---
+
 ## 📋 Project Overview
 
 This project implements a complete home automation controller using **STM32F446RE Nucleo-64** microcontroller. The system features a hierarchical finite state machine (FSM) for secure access control, real-time sensor monitoring, and automated device management—all without HAL or RTOS dependencies, using pure register-level drivers for maximum efficiency.
