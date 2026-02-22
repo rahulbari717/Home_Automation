@@ -6,35 +6,32 @@
 ![License](https://img.shields.io/github/license/rahulbari717/embedded-systems-toolkit?color=green)
 
 **A bare-metal embedded home automation system with finite state machine architecture, featuring multi-sensor monitoring, device control, and secure keypad authentication.**
-
 ## 📺 System Demonstration
 
 ### Hardware Setup
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rahulbari717/Home_Automation/main/docs/media/Hardware_setup.jpeg" width="45%" alt="STM32 Board"/>
-  <img src="https://raw.githubusercontent.com/rahulbari717/Home_Automation/main/docs/media/Hardware.jpeg" width="45%" alt="Complete Setup"/>
-  <img src="https://raw.githubusercontent.com/rahulbari717/Home_Automation/main/docs/media/Terminal_setup.jpeg" width="45%" alt="Terminal"/>
+  <img src="docs/media/Hardware_setup.jpeg" width="32%" alt="Hardware Setup"/>
+  <img src="docs/media/Hardware.jpeg" width="32%" alt="Complete Setup"/>
+  <img src="docs/media/Terminal_setup.jpeg" width="32%" alt="Terminal"/>
 </p>
-<p align="center">
-  <em>STM32F446RE Nucleo-64 with all peripherals on breadboard</em>
-</p>
+<p align="center"><em>STM32F446RE Nucleo-64 with all peripherals on breadboard</em></p>
 
 ---
 
 ### Live System Videos
-**Click the links below to watch the demonstrations directly in your browser:**
+> Click any thumbnail to watch instantly
 
-| Category | High-Quality Video Link |
-| :--- | :--- |
-| **Full Overview** | 📹 [System Walkthrough](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/1.mp4) |
-| **Serial Debugging** | 📹 [Terminal/Serial Peek](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/2_terminal_peek.mp4) |
-| **Relay Testing** | 📹 [Hardware Control](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/3_relay_testing.mp4) |
-| **Display Testing** | 📹 [OLED & LCD](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/4.mp4) |
-| **PIN Authentication** | 📹 [Security System](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/5_ir_pin_entry.mp4) |
-| **Device Control** | 📹 [Relay & Load Toggling](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/6_device_control.mp4) |
-| **Sensor Monitoring** | 📹 [Real-time ADC Data](https://github.com/rahulbari717/Home_Automation/raw/main/docs/media/7_pin_sensor_monitoring.mp4) |
+| Full Overview | Serial Debugging | Relay Testing |
+|:---:|:---:|:---:|
+| [![](docs/media/1_thumb.jpg)](https://youtube.com/shorts/fu9Y7990ve4) | [![](docs/media/2_thumb.jpg)](https://youtu.be/zBvtgqBLZm0) | [![](docs/media/3_thumb.jpg)](https://youtube.com/shorts/7sf-6Cn_V94) |
+| **Full System Walkthrough** | **UART Debug Terminal** | **Relay Hardware Control** |
 
----
+| Device Control | Sensor Monitoring |
+|:---:|:---:|
+| [![](docs/media/6_thumb.jpg)](https://youtube.com/shorts/8AJdI6OWcv4) | [![](docs/media/7_thumb.jpg)](https://youtube.com/shorts/HdKf6nJ0Sxs) |
+| **Device Control Interface** | **Real-time Sensor Monitoring** |
+
 
 ## 📋 Project Overview
 
