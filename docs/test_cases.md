@@ -1,7 +1,7 @@
 # Acceptance Test Plan  
-## The Citadel Home Automation System
+## Home Automation System
 
-This document provides a comprehensive step-by-step validation guide for the **Citadel Home Automation System**.  
+This document provides a comprehensive step-by-step validation guide for the **Home Automation System**.  
 It is designed to verify:
 
 - Hardware integrity  
@@ -16,7 +16,7 @@ It is designed to verify:
 Ensure your environment matches these hardware and software specifications before starting the tests.
 
 ---
-
+l
 ## 2. Complete Peripheral Pin Mapping & Visualization
 
 Use this table to **visually trace and validate each physical pin** during testing.

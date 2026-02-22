@@ -28,15 +28,15 @@ int main(void) {
     StateMachine_Init();
 
     // Peripheral Self-Test
-//    uint8_t test_result = System_SelfTest();
-//    if (test_result != 0) {
-//        UART_Printf(">> [WARNING] System test had errors (0x%X)\r\n", test_result);
-//        UART_Printf(">> [INFO] Continuing anyway...\r\n");
-//        Device_PlayBuzzer(BEEP_WARNING);
-//    } else {
-//        Device_PlayBuzzer(BEEP_SUCCESS);
-//        UART_Printf(">> [SUCCESS] All tests passed!\r\n");
-//    }
+    uint8_t test_result = System_SelfTest();
+    if (test_result != 0) {
+        UART_Printf(">> [WARNING] System test had errors (0x%X)\r\n", test_result);
+        UART_Printf(">> [INFO] Continuing anyway...\r\n");
+        Device_PlayBuzzer(BEEP_WARNING);
+    } else {
+        Device_PlayBuzzer(BEEP_SUCCESS);
+        UART_Printf(">> [SUCCESS] All tests passed!\r\n");
+    }
 
     UART_Printf(">> [SYSTEM] Entering main loop .\r\n");
     while(1) {
@@ -61,7 +61,7 @@ void EXTI9_5_IRQHandler(void)
     /* PC6 - IR Sensor 1 */
     if (EXTI->PR & (1 << 6))
     {
-        UART_Printf("[ISR] PC6 triggered!\r\n");
+        UART_Printf("[ISR] PC6 IR Sensor triggered!\r\n");
         EXTI->PR |= (1 << 6);     // Clear pending bit
         pc6_intrusion_event = true;
     }

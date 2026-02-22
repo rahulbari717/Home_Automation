@@ -33,12 +33,12 @@ void app_init(void) {
 		uint32_t pclk1  = RCC_GetPCLK1Value();
 		uint32_t pclk2  = RCC_GetPCLK2Value();
 
-		UART_Printf("\r\n--- Clock Configuration Complete ---\r\n");
-		UART_Printf("SYSCLK (Core): %u MHz\r\n", sysclk / 1000000);
-		UART_Printf("HCLK   (AHB):  %u MHz\r\n", hclk / 1000000);
-		UART_Printf("PCLK1  (APB1): %u MHz\r\n", pclk1 / 1000000);
-		UART_Printf("PCLK2  (APB2): %u MHz\r\n", pclk2 / 1000000);
-		UART_Printf("------------------------------------\r\n");
+		UART_Printf(" \r\n--- Clock Configuration Complete ---\r\n");
+		UART_Printf(" SYSCLK (Core): %u MHz\r\n", sysclk / 1000000);
+		UART_Printf(" HCLK   (AHB):  %u MHz\r\n", hclk / 1000000);
+		UART_Printf(" PCLK1  (APB1): %u MHz\r\n", pclk1 / 1000000);
+		UART_Printf(" PCLK2  (APB2): %u MHz\r\n", pclk2 / 1000000);
+		UART_Printf("----------------------------------------\r\n");
 
 	    /* 3. User Interface */
 	    BSP_LED_Init();

@@ -97,8 +97,8 @@ void StateMachine_Init(void)
    UART_Printf("\r\n");
 
    // Update displays for standby
-//   Display_UpdateOLED();
-//   Display_UpdateLCD();
+   Display_UpdateOLED();
+   Display_UpdateLCD();
    BSP_Delay_1s();
 }
 
@@ -108,7 +108,7 @@ void StateMachine_Init(void)
 void StateMachine_Run(void)
 {
     // Process intrusion events
-//    Process_Intrusion_Events();
+    Process_Intrusion_Events();
 
     // State Machine Logic
     switch (g_SystemContext.currentState) {

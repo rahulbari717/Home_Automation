@@ -4,7 +4,7 @@
 **Document Number:** FRS-Home Automation
 **Version:** 1.0  
 **Date:** January 24, 2026  
-**Author:** Rahul Bari, Embedded Developer  
+**Author:** Rahul Bari
 **Status:** Active Development  
 
 ---

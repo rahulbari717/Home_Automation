@@ -330,15 +330,15 @@ uint8_t System_SelfTest(void) {
     // print_Log(" LEDs, Buzzer OK\r\n");
 
     /* --- TEST 2: I2C OLED (SSD1306) --- */
-//    UART_Printf("[SCAN] I2C OLED (Address 0x3C)...");
-//    if (I2C_CheckDevice(I2C1, OLED_I2C_ADDR) == 1) { // Check for ACK on I2C bus
-//    	greet();
-//    	UART_Printf(" OK\r\n");
-//    } else {
-//        UART_Printf(" NOT FOUND\r\n");
-//        error_mask |= (1 << 1);
-//    }
-    greet();
+    UART_Printf("[SCAN] I2C OLED (Address 0x3C)...");
+    if (I2C_CheckDevice(I2C1, OLED_I2C_ADDR) == 1) { // Check for ACK on I2C bus
+    	greet();
+    	UART_Printf(" OK\r\n");
+    } else {
+        UART_Printf(" NOT FOUND\r\n");
+        error_mask |= (1 << 1);
+    }
+//    greet();
     /* --- TEST 3: ADC Sensors (LDR1 & LDR2) --- */
 
 //     UART_Printf("[TEST] Reading LDRs for 180s...\r\n");
@@ -381,34 +381,34 @@ uint8_t System_SelfTest(void) {
 //  		// Small delay to avoid flooding UART
 //  		BSP_Delay_100ms();
 //  	}
-//
-//    /* --- TEST 5: Relay Matrix (Port B) --- */
-//    print_Log("[SCAN] Relay ...");
-//    // We toggle them fast so you hear a "click" during boot
-//    for(int i=1; i<=5; i++) {
-//        BSP_Delay_3s();
-//        BSP_Relay_SetState(RELAY1_PIN, RESET);
-//        BSP_Relay_SetState(RELAY2_PIN, RESET);
-//        BSP_Relay_SetState(RELAY3_PIN, RESET);
-//        BSP_Relay_SetState(RELAY4_PIN, RESET);
-//        BSP_Delay_3s();
-//        BSP_Relay_SetState(RELAY1_PIN, SET);
-//        BSP_Relay_SetState(RELAY2_PIN, SET);
-//        BSP_Relay_SetState(RELAY3_PIN, SET);
-//        BSP_Relay_SetState(RELAY4_PIN, SET);
-//    }
-//    UART_Printf(" OK\r\n");
-//
-//    /* --- FINAL EVALUATION --- */
-//    if (error_mask == 0) {
-//        UART_Printf(">> STATUS: ALL PERIPHERALS HEALTHY\r\n\r\n");
-//        // Success Tone
-//        Device_PlayBuzzer(BEEP_SUCCESS);
-//    } else {
-//        UART_Printf(">> STATUS: FATAL HARDWARE ERROR (Code: 0x%X)\r\n", error_mask);
-//        GPIO_WriteToOutputPin(LED_PORT, LED_RED_PIN, SET); // Solid RED for failure
-//        Device_PlayBuzzer(BEEP_ERROR);
-//    }
+
+    /* --- TEST 5: Relay Matrix (Port B) --- */
+    print_Log("[SCAN] Relay ...");
+    // We toggle them fast so you hear a "click" during boot
+    for(int i=1; i<=5; i++) {
+        BSP_Delay_3s();
+        BSP_Relay_SetState(RELAY1_PIN, RESET);
+        BSP_Relay_SetState(RELAY2_PIN, RESET);
+        BSP_Relay_SetState(RELAY3_PIN, RESET);
+        BSP_Relay_SetState(RELAY4_PIN, RESET);
+        BSP_Delay_3s();
+        BSP_Relay_SetState(RELAY1_PIN, SET);
+        BSP_Relay_SetState(RELAY2_PIN, SET);
+        BSP_Relay_SetState(RELAY3_PIN, SET);
+        BSP_Relay_SetState(RELAY4_PIN, SET);
+    }
+    UART_Printf(" OK\r\n");
+
+    /* --- FINAL EVALUATION --- */
+    if (error_mask == 0) {
+        UART_Printf(">> STATUS: ALL PERIPHERALS HEALTHY\r\n\r\n");
+        // Success Tone
+        Device_PlayBuzzer(BEEP_SUCCESS);
+    } else {
+        UART_Printf(">> STATUS: FATAL HARDWARE ERROR (Code: 0x%X)\r\n", error_mask);
+        GPIO_WriteToOutputPin(LED_PORT, LED_RED_PIN, SET); // Solid RED for failure
+        Device_PlayBuzzer(BEEP_ERROR);
+    }
     print_Log("TEST COMPLETE");
     return error_mask;
 }
